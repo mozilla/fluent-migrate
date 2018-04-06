@@ -2,7 +2,7 @@
 
 from setuptools import setup
 
-setup(name='fluent',
+setup(name='fluent.migrate',
       version='0.6.4',
       description='Localization library for expressive translations.',
       author='Mozilla',
@@ -17,7 +17,7 @@ setup(name='fluent',
           'Programming Language :: Python :: 2.7',
           'Programming Language :: Python :: 3.5',
       ],
-      packages=['fluent', 'fluent.syntax', 'fluent.migrate'],
+      packages=['fluent.migrate'],
       tests_require=['six'],
-      test_suite='tests.syntax'
+      test_suite='tests.migrate'
 )

@@ -1,4 +1,4 @@
 \.tox
 \.pyc$
 ^.eggs$
-^fluent.egg-info$
+^fluent.migrate.egg-info$
