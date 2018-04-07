@@ -57,7 +57,7 @@ class MergeContext(object):
         # language.  E.g. ('one', 'other') for English.
         try:
             self.plural_categories = CATEGORIES_BY_LOCALE[lang]
-        except IndexError as e:
+        except KeyError as e:
             logging.getLogger('migrate').warn(e)
             self.plural_categories = ('one', 'other')
 
