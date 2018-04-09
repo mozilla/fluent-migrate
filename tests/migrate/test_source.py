@@ -54,7 +54,7 @@ class TestNotSupportedError(unittest.TestCase):
 
 class MockContext(unittest.TestCase):
     def get_source(self, _path, key):
-        # Ignore _path (test.properties) and get translations from self.strings.
+        # Ignore _path (test.properties), get translations from self.strings.
         return self.strings[key].val
 
 

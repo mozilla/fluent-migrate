@@ -54,6 +54,7 @@ class Blame(object):
             userid = self.users.index(user)
             self.blame[path][e.key] = [userid, timestamp]
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('repo_path')

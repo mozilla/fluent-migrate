@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 import os
 import logging
 import unittest
-import compare_locales
 
 import fluent.syntax.ast as FTL
 from fluent.migrate.errors import (

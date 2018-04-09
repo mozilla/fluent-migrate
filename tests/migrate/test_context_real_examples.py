@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 import os
 import unittest
-import compare_locales
 
 import fluent.syntax.ast as FTL
 from fluent.migrate.util import ftl_resource_to_json, to_json
@@ -345,7 +344,9 @@ class TestMergeAboutDialog(unittest.TestCase):
 
         update-failed = Aktualizacja się nie powiodła. <a>Pobierz</a>.
         channel-desc = Obecnie korzystasz z kanału { $channelname }.{" "}
-        community = Program { brand-short-name } został opracowany przez <a>organizację { vendor-short-name }</a>, która jest <a>globalną społecznością</a>, starającą się zapewnić, by…
+        community = Program { brand-short-name } został opracowany przez \
+<a>organizację { vendor-short-name }</a>, która jest <a>globalną \
+społecznością</a>, starającą się zapewnić, by…
             ''')
         }
 

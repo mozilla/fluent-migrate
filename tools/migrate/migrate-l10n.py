@@ -2,8 +2,6 @@
 # coding=utf8
 
 import os
-import sys
-import json
 import logging
 import argparse
 import importlib
@@ -90,6 +88,7 @@ def main(lang, reference_dir, localization_dir, migrations, dry_run):
                     )
                 except hglib.error.CommandError as err:
                     print('    WARNING: hg commit failed ({})'.format(err))
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
