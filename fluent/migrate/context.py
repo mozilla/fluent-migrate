@@ -14,7 +14,7 @@ except ImportError:
 import fluent.syntax.ast as FTL
 from fluent.syntax.parser import FluentParser
 from fluent.syntax.serializer import FluentSerializer
-from fluent.util import fold
+from fluent.migrate.util import fold
 from compare_locales.parser import getParser
 from compare_locales.plurals import CATEGORIES_BY_LOCALE
 

@@ -17,7 +17,7 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python :: 2.7',
     ],
-    packages=['fluent.migrate'],
+    packages=['fluent', 'fluent.migrate'],
     install_requires=[
         'compare-locales >=3.0, <4.0'
     ],

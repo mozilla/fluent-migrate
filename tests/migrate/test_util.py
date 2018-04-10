@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 import unittest
 
 import fluent.syntax.ast as FTL
-from fluent.util import fold
+from fluent.migrate.util import fold
 from fluent.migrate.transforms import CONCAT, COPY, REPLACE, Source
 
 
