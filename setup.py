@@ -19,7 +19,9 @@ setup(
     ],
     packages=['fluent', 'fluent.migrate'],
     install_requires=[
-        'compare-locales >=3.0, <4.0'
+        'compare-locales >=3.0, <4.0',
+        'fluent >= 0.7, < 0.8'
+        'six',
     ],
     test_suite='tests.migrate'
 )

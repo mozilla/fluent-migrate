@@ -9,6 +9,7 @@ They take a string argument and immediately return a corresponding AST node.
 migrated AST nodes when they are evaluated by a MergeContext.) """
 
 from __future__ import unicode_literals
+from __future__ import absolute_import
 
 import fluent.syntax.ast as FTL
 

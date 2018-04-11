@@ -1,8 +1,10 @@
 # coding=utf8
 from __future__ import unicode_literals
+from __future__ import absolute_import
 
 import os
 import logging
+import six
 import unittest
 
 import fluent.syntax.ast as FTL
@@ -323,7 +325,7 @@ class TestMissingLocalizationFiles(unittest.TestCase):
 
     def test_all_files_missing(self):
         pattern = ('No localization files were found')
-        with self.assertRaisesRegexp(EmptyLocalizationError, pattern):
+        with six.assertRaisesRegex(self, EmptyLocalizationError, pattern):
             self.ctx.add_transforms('existing.ftl', 'existing.ftl', [
                 FTL.Message(
                     id=FTL.Identifier('foo'),
@@ -680,7 +682,7 @@ class TestExistingTarget(unittest.TestCase):
 class TestNotSupportedError(unittest.TestCase):
     def test_add_ftl(self):
         pattern = ('Migrating translations from Fluent files is not supported')
-        with self.assertRaisesRegexp(NotSupportedError, pattern):
+        with six.assertRaisesRegex(self, NotSupportedError, pattern):
             ctx = MergeContext(
                 lang='pl',
                 reference_dir=here('fixtures/en-US'),

@@ -63,6 +63,7 @@ TextElement by PLURALS and then run through the REPLACE_IN_TEXT transform.
 """
 
 from __future__ import unicode_literals
+from __future__ import absolute_import
 import re
 
 import fluent.syntax.ast as FTL
@@ -235,15 +236,14 @@ class REPLACE_IN_TEXT(Transform):
         # Only replace placeables which are present in the translation.
         replacements = {
             key: evaluate(ctx, repl)
-            for key, repl in self.replacements.iteritems()
+            for key, repl in self.replacements.items()
             if key in self.element.value
         }
 
         # Order the original placeables by their position in the translation.
         keys_in_order = sorted(
             replacements.keys(),
-            lambda x, y:
-                self.element.value.find(x) - self.element.value.find(y)
+            key=lambda x: self.element.value.find(x)
         )
 
         # A list of PatternElements built from the legacy translation and the

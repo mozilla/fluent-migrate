@@ -1,15 +1,12 @@
 # coding=utf8
 from __future__ import unicode_literals
+from __future__ import absolute_import
 
 import os
 import codecs
 from functools import partial
 import logging
-
-try:
-    from itertools import zip_longest
-except ImportError:
-    from itertools import izip_longest as zip_longest
+from six.moves import zip_longest
 
 import fluent.syntax.ast as FTL
 from fluent.syntax.parser import FluentParser
@@ -58,7 +55,7 @@ class MergeContext(object):
         try:
             self.plural_categories = CATEGORIES_BY_LOCALE[lang]
         except KeyError as e:
-            logging.getLogger('migrate').warn(e)
+            logging.getLogger('migrate').warning(e)
             self.plural_categories = ('one', 'other')
 
         # Paths to directories with input data, relative to CWD.
@@ -85,7 +82,7 @@ class MergeContext(object):
             contents = f.read()
         except UnicodeDecodeError as err:
             logger = logging.getLogger('migrate')
-            logger.warn('Unable to read file {}: {}'.format(path, err))
+            logger.warning('Unable to read file {}: {}'.format(path, err))
             raise err
         finally:
             f.close()
@@ -102,7 +99,7 @@ class MergeContext(object):
             logger = logging.getLogger('migrate')
             for annot in annots:
                 msg = annot.message
-                logger.warn('Syntax error in {}: {}'.format(path, msg))
+                logger.warning('Syntax error in {}: {}'.format(path, msg))
 
         return ast
 
@@ -148,7 +145,7 @@ class MergeContext(object):
             return FTL.Resource()
         except UnicodeDecodeError:
             logger = logging.getLogger('migrate')
-            logger.warn(
+            logger.warning(
                 'Localization file {} has broken encoding. '
                 'It will be re-created and some translations '
                 'may be lost'.format(path))
@@ -175,7 +172,7 @@ class MergeContext(object):
             collection = self.read_legacy_resource(fullpath)
         except IOError:
             logger = logging.getLogger('migrate')
-            logger.warn('Missing localization file: {}'.format(path))
+            logger.warning('Missing localization file: {}'.format(path))
         else:
             self.localization_resources[path] = collection
 
@@ -214,7 +211,7 @@ class MergeContext(object):
             # it doesn't, it's probably a typo.
             if get_message(reference_ast.body, ident) is None:
                 logger = logging.getLogger('migrate')
-                logger.warn(
+                logger.warning(
                     '{} "{}" was not found in {}'.format(
                         type(node).__name__, ident, reference))
 
@@ -303,15 +300,15 @@ class MergeContext(object):
             # Merge all known legacy translations. Used in tests.
             changeset = {
                 (path, key)
-                for path, strings in self.localization_resources.iteritems()
+                for path, strings in self.localization_resources.items()
                 if not path.endswith('.ftl')
-                for key in strings.iterkeys()
+                for key in strings.keys()
             }
 
         if known_translations is None:
             known_translations = changeset
 
-        for path, reference in self.reference_resources.iteritems():
+        for path, reference in self.reference_resources.items():
             current = self.localization_resources[path]
             transforms = self.transforms.get(path, [])
             in_changeset = partial(
