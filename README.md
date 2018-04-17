@@ -7,9 +7,9 @@ the hood to run migrations on existing translations.
 Installation
 ------------
 
-The tools here depend on `compare-locales` and `python-fluent`, aka, `fluent.syntax`.
+The tool is best installed by installing the package. As we haven't published the tool on pypi yet, the best way to do so is to run the following command in a virtualenv from your local clone:
 
-    pip install compare-locales fluent
+    pip install .
 
 Usage
 -----
@@ -23,7 +23,7 @@ The migrations are run as python modules, so you need to have their file locatio
 
 An example would look like
 
-    $ ./tools/migrate/migrate-l10n.py --lang it --reference-dir gecko-strings --localization-dir l10n-central/it bug_1451992_preferences_sitedata bug_1451992_preferences_translation
+    $ migrate-l10n --lang it --reference-dir gecko-strings --localization-dir l10n-central/it bug_1451992_preferences_sitedata bug_1451992_preferences_translation
 
 Contact
 -------

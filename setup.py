@@ -18,9 +18,15 @@ setup(
         'Programming Language :: Python :: 2.7',
     ],
     packages=['fluent', 'fluent.migrate'],
+    entry_points={
+        'console_scripts': [
+            'migrate-l10n=fluent.migrate.tool:cli'
+        ]
+    },
     install_requires=[
         'compare-locales >=3.0, <4.0',
-        'fluent >= 0.7, < 0.8'
+        'fluent >= 0.7, < 0.8',
+        'python-hglib',
         'six',
     ],
     test_suite='tests.migrate'

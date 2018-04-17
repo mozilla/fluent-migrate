@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # coding=utf8
 
 import os
@@ -12,7 +11,7 @@ from hglib.util import b
 from fluent.migrate.context import MergeContext
 from fluent.migrate.errors import MigrationError
 from fluent.migrate.changesets import convert_blame_to_changesets
-from blame import Blame
+from fluent.migrate.blame import Blame
 
 
 def main(lang, reference_dir, localization_dir, migrations, dry_run):
@@ -90,7 +89,7 @@ def main(lang, reference_dir, localization_dir, migrations, dry_run):
                     print('    WARNING: hg commit failed ({})'.format(err))
 
 
-if __name__ == '__main__':
+def cli():
     parser = argparse.ArgumentParser(
         description='Migrate translations to FTL.'
     )
@@ -128,3 +127,7 @@ if __name__ == '__main__':
         migrations=map(importlib.import_module, args.migrations),
         dry_run=args.dry_run
     )
+
+
+if __name__ == '__main__':
+    cli()
