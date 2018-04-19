@@ -14,7 +14,7 @@ The tool is best installed by installing the package. As we haven't published th
 Usage
 -----
 
-Migrations contain of _recipes_, which are applied to a _localization repository_, based on _template files_.
+Migrations consist of _recipes_, which are applied to a _localization repository_, based on _template files_.
 You can find recipes for Firefox in `mozilla-central/python/l10n/fluent_migrations/`,
 the reference repository is [gecko-strings](https://hg.mozilla.org/l10n/gecko-strings/) or _quarantine_.
 You apply those migrations to l10n repositories in [l10n-central](https://hg.mozilla.org/l10n-central/), or to `gecko-strings` for testing.
