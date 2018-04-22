@@ -54,8 +54,11 @@ class MergeContext(object):
         # language.  E.g. ('one', 'other') for English.
         try:
             self.plural_categories = CATEGORIES_BY_LOCALE[lang]
-        except KeyError as e:
-            logging.getLogger('migrate').warning(e)
+        except KeyError as locale_key:
+            logger = logging.getLogger('migrate')
+            logger.warning(
+                'Plural rule for "{}" is not defined in '
+                'compare-locales'.format(locale_key))
             self.plural_categories = ('one', 'other')
 
         # Paths to directories with input data, relative to CWD.
