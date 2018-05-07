@@ -13,7 +13,7 @@ from __future__ import absolute_import
 
 from fluent.syntax import FluentParser, ast as FTL
 from .transforms import Transform, CONCAT, COPY
-from .errors import NotSupportedError
+from .errors import NotSupportedError, InvalidTransformError
 
 
 def EXTERNAL_ARGUMENT(name):
@@ -49,6 +49,11 @@ def transforms_from(ftl):
     def into_transforms(node):
         """Convert { COPY() } placeables into the COPY() transform."""
 
+        if isinstance(node, FTL.Junk):
+            anno = node.annotations[0]
+            raise InvalidTransformError(
+                "Transform contains parse error: {}, at {}".format(
+                    anno.message, anno.span.start))
         if isinstance(node, FTL.CallExpression):
             name = node.callee.name
             if name == "COPY":

@@ -9,7 +9,7 @@ from six.moves import zip_longest
 import fluent.syntax.ast as FTL
 from fluent.migrate.helpers import transforms_from
 from fluent.migrate.transforms import CONCAT, COPY
-from fluent.migrate.errors import NotSupportedError
+from fluent.migrate.errors import NotSupportedError, InvalidTransformError
 
 
 class TestTransformsFrom(unittest.TestCase):
@@ -247,4 +247,11 @@ new-key = { CONCAT("a", "b") }
         with six.assertRaisesRegex(self, NotSupportedError, pattern):
             transforms_from("""
 new-key = { REPLACE() }
+""")
+
+    def test_broken_transform(self):
+        pattern = "contains parse error"
+        with six.assertRaisesRegex(self, InvalidTransformError, pattern):
+            transforms_from("""
+new-key = { COPY('path', 'key') }
 """)
