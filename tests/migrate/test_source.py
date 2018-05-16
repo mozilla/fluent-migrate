@@ -22,35 +22,26 @@ class TestNotSupportedError(unittest.TestCase):
     def test_copy(self):
         pattern = ('Migrating translations from Fluent files is not supported')
         with six.assertRaisesRegex(self, NotSupportedError, pattern):
-            FTL.Message(
-                FTL.Identifier('foo'),
-                value=COPY('test.ftl', 'foo')
-            )
+            COPY('test.ftl', 'foo')
 
     def test_plurals(self):
         pattern = ('Migrating translations from Fluent files is not supported')
         with six.assertRaisesRegex(self, NotSupportedError, pattern):
-            FTL.Message(
-                FTL.Identifier('delete-all'),
-                value=PLURALS(
-                    'test.ftl',
-                    'deleteAll',
-                    EXTERNAL_ARGUMENT('num')
-                )
+            PLURALS(
+                'test.ftl',
+                'deleteAll',
+                EXTERNAL_ARGUMENT('num')
             )
 
     def test_replace(self):
         pattern = ('Migrating translations from Fluent files is not supported')
         with six.assertRaisesRegex(self, NotSupportedError, pattern):
-            FTL.Message(
-                FTL.Identifier(u'hello'),
-                value=REPLACE(
-                    'test.ftl',
-                    'hello',
-                    {
-                        '#1': EXTERNAL_ARGUMENT('username')
-                    }
-                )
+            REPLACE(
+                'test.ftl',
+                'hello',
+                {
+                    '#1': EXTERNAL_ARGUMENT('username')
+                }
             )
 
 

@@ -5,8 +5,7 @@ from __future__ import absolute_import
 import unittest
 from compare_locales.parser import PropertiesParser
 
-import fluent.syntax.ast as FTL
-from fluent.migrate.util import parse, ftl_message_to_json
+from fluent.migrate.util import parse, ftl_pattern_to_json
 from fluent.migrate.helpers import EXTERNAL_ARGUMENT
 from fluent.migrate.transforms import evaluate, PLURALS, REPLACE_IN_TEXT
 
@@ -26,54 +25,45 @@ class TestPlural(MockContext):
             plural = One;Few;Many
         ''')
 
-        self.message = FTL.Message(
-            FTL.Identifier('plural'),
-            value=PLURALS(
-                'test.properties',
-                'plural',
-                EXTERNAL_ARGUMENT('num')
-            )
+        self.transform = PLURALS(
+            'test.properties',
+            'plural',
+            EXTERNAL_ARGUMENT('num')
         )
 
     def test_plural(self):
         self.plural_categories = ('one', 'few', 'many')
         self.assertEqual(
-            evaluate(self, self.message).to_json(),
-            ftl_message_to_json('''
-                plural =
-                    { $num ->
-                        [one] One
-                        [few] Few
-                       *[many] Many
-                    }
+            evaluate(self, self.transform).to_json(),
+            ftl_pattern_to_json('''{ $num ->
+                    [one] One
+                    [few] Few
+                   *[many] Many
+                }
             ''')
         )
 
     def test_plural_too_few_variants(self):
         self.plural_categories = ('one', 'few', 'many', 'other')
         self.assertEqual(
-            evaluate(self, self.message).to_json(),
-            ftl_message_to_json('''
-                plural =
-                    { $num ->
-                        [one] One
-                        [few] Few
-                        [many] Many
-                       *[other] Many
-                    }
+            evaluate(self, self.transform).to_json(),
+            ftl_pattern_to_json('''{ $num ->
+                    [one] One
+                    [few] Few
+                    [many] Many
+                   *[other] Many
+                }
             ''')
         )
 
     def test_plural_too_many_variants(self):
         self.plural_categories = ('one', 'few')
         self.assertEqual(
-            evaluate(self, self.message).to_json(),
-            ftl_message_to_json('''
-                plural =
-                    { $num ->
-                        [one] One
-                       *[few] Few
-                    }
+            evaluate(self, self.transform).to_json(),
+            ftl_pattern_to_json('''{ $num ->
+                    [one] One
+                   *[few] Few
+                }
             ''')
         )
 
@@ -86,25 +76,20 @@ class TestPluralOrder(MockContext):
             plural = One;Other;Few
         ''')
 
-        self.message = FTL.Message(
-            FTL.Identifier('plural'),
-            value=PLURALS(
-                'test.properties',
-                'plural',
-                EXTERNAL_ARGUMENT('num')
-            )
+        self.transform = PLURALS(
+            'test.properties',
+            'plural',
+            EXTERNAL_ARGUMENT('num')
         )
 
     def test_unordinary_order(self):
         self.assertEqual(
-            evaluate(self, self.message).to_json(),
-            ftl_message_to_json('''
-                plural =
-                    { $num ->
-                        [one] One
-                        [few] Few
-                       *[other] Other
-                    }
+            evaluate(self, self.transform).to_json(),
+            ftl_pattern_to_json('''{ $num ->
+                    [one] One
+                    [few] Few
+                   *[other] Other
+                }
             ''')
         )
 
@@ -118,30 +103,25 @@ class TestPluralReplace(MockContext):
         ''')
 
     def test_plural_replace(self):
-        msg = FTL.Message(
-            FTL.Identifier('plural'),
-            value=PLURALS(
-                'test.properties',
-                'plural',
-                EXTERNAL_ARGUMENT('num'),
-                lambda text: REPLACE_IN_TEXT(
-                    text,
-                    {
-                        '#1': EXTERNAL_ARGUMENT('num')
-                    }
-                )
+        transform = PLURALS(
+            'test.properties',
+            'plural',
+            EXTERNAL_ARGUMENT('num'),
+            lambda text: REPLACE_IN_TEXT(
+                text,
+                {
+                    '#1': EXTERNAL_ARGUMENT('num')
+                }
             )
         )
 
         self.assertEqual(
-            evaluate(self, msg).to_json(),
-            ftl_message_to_json('''
-                plural =
-                    { $num ->
-                        [one] One
-                        [few] Few { $num }
-                       *[many] Many { $num }
-                    }
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('''{ $num ->
+                    [one] One
+                    [few] Few { $num }
+                   *[many] Many { $num }
+                }
             ''')
         )
 
@@ -155,56 +135,41 @@ class TestNoPlural(MockContext):
 
     def test_one_category_one_variant(self):
         self.plural_categories = ('other',)
-        message = FTL.Message(
-            FTL.Identifier('plural'),
-            value=PLURALS(
-                'test.properties',
-                'plural-other',
-                EXTERNAL_ARGUMENT('num')
-            )
+        transform = PLURALS(
+            'test.properties',
+            'plural-other',
+            EXTERNAL_ARGUMENT('num')
         )
 
         self.assertEqual(
-            evaluate(self, message).to_json(),
-            ftl_message_to_json('''
-                plural = Other
-            ''')
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('Other')
         )
 
     def test_one_category_many_variants(self):
         self.plural_categories = ('other',)
-        message = FTL.Message(
-            FTL.Identifier('plural'),
-            value=PLURALS(
-                'test.properties',
-                'plural-one-other',
-                EXTERNAL_ARGUMENT('num')
-            )
+        transform = PLURALS(
+            'test.properties',
+            'plural-one-other',
+            EXTERNAL_ARGUMENT('num')
         )
 
         self.assertEqual(
-            evaluate(self, message).to_json(),
-            ftl_message_to_json('''
-                plural = One
-            ''')
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('One')
         )
 
     def test_many_categories_one_variant(self):
         self.plural_categories = ('one', 'other')
-        message = FTL.Message(
-            FTL.Identifier('plural'),
-            value=PLURALS(
-                'test.properties',
-                'plural-other',
-                EXTERNAL_ARGUMENT('num')
-            )
+        transform = PLURALS(
+            'test.properties',
+            'plural-other',
+            EXTERNAL_ARGUMENT('num')
         )
 
         self.assertEqual(
-            evaluate(self, message).to_json(),
-            ftl_message_to_json('''
-                plural = Other
-            ''')
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('Other')
         )
 
 
@@ -212,13 +177,10 @@ class TestEmpty(MockContext):
     plural_categories = ('one', 'few', 'many')
 
     def setUp(self):
-        self.message = FTL.Message(
-            FTL.Identifier('plural'),
-            value=PLURALS(
-                'test.properties',
-                'plural',
-                EXTERNAL_ARGUMENT('num')
-            )
+        self.transform = PLURALS(
+            'test.properties',
+            'plural',
+            EXTERNAL_ARGUMENT('num')
         )
 
     def test_non_default_empty(self):
@@ -227,13 +189,11 @@ class TestEmpty(MockContext):
         ''')
 
         self.assertEqual(
-            evaluate(self, self.message).to_json(),
-            ftl_message_to_json('''
-                plural =
-                    { $num ->
-                        [few] Few
-                       *[many] Many
-                    }
+            evaluate(self, self.transform).to_json(),
+            ftl_pattern_to_json('''{ $num ->
+                    [few] Few
+                   *[many] Many
+                }
             ''')
         )
 
@@ -243,14 +203,12 @@ class TestEmpty(MockContext):
         ''')
 
         self.assertEqual(
-            evaluate(self, self.message).to_json(),
-            ftl_message_to_json('''
-                plural =
-                    { $num ->
-                        [one] One
-                        [few] Few
-                       *[many] Few
-                    }
+            evaluate(self, self.transform).to_json(),
+            ftl_pattern_to_json('''{ $num ->
+                    [one] One
+                    [few] Few
+                   *[many] Few
+                }
             ''')
         )
 
@@ -260,10 +218,8 @@ class TestEmpty(MockContext):
         ''')
 
         self.assertEqual(
-            evaluate(self, self.message).to_json(),
-            ftl_message_to_json('''
-                plural = {""}
-            ''')
+            evaluate(self, self.transform).to_json(),
+            ftl_pattern_to_json('{""}')
         )
 
     def test_no_value(self):
@@ -272,10 +228,8 @@ class TestEmpty(MockContext):
         ''')
 
         self.assertEqual(
-            evaluate(self, self.message).to_json(),
-            ftl_message_to_json('''
-                plural = {""}
-            ''')
+            evaluate(self, self.transform).to_json(),
+            ftl_pattern_to_json('{""}')
         )
 
 

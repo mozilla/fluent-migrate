@@ -6,7 +6,7 @@ import unittest
 from compare_locales.parser import PropertiesParser
 
 import fluent.syntax.ast as FTL
-from fluent.migrate.util import parse, ftl_message_to_json
+from fluent.migrate.util import parse, ftl_pattern_to_json
 from fluent.migrate.helpers import EXTERNAL_ARGUMENT
 from fluent.migrate.transforms import evaluate, REPLACE
 
@@ -31,205 +31,155 @@ class TestReplace(MockContext):
         ''')
 
     def test_replace_empty(self):
-        msg = FTL.Message(
-            FTL.Identifier(u'empty'),
-            value=REPLACE(
-                'test.properties',
-                'empty',
-                {
-                    '#1': EXTERNAL_ARGUMENT('arg')
-                }
-            )
+        transform = REPLACE(
+            'test.properties',
+            'empty',
+            {
+                '#1': EXTERNAL_ARGUMENT('arg')
+            }
         )
 
         self.assertEqual(
-            evaluate(self, msg).to_json(),
-            ftl_message_to_json('''
-                empty = {""}
-            ''')
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('{""}')
         )
 
     def test_replace_one(self):
-        msg = FTL.Message(
-            FTL.Identifier(u'hello'),
-            value=REPLACE(
-                'test.properties',
-                'hello',
-                {
-                    '#1': EXTERNAL_ARGUMENT('username')
-                }
-            )
+        transform = REPLACE(
+            'test.properties',
+            'hello',
+            {
+                '#1': EXTERNAL_ARGUMENT('username')
+            }
         )
 
         self.assertEqual(
-            evaluate(self, msg).to_json(),
-            ftl_message_to_json('''
-                hello = Hello, { $username }!
-            ''')
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('Hello, { $username }!')
         )
 
     def test_replace_two(self):
-        msg = FTL.Message(
-            FTL.Identifier(u'welcome'),
-            value=REPLACE(
-                'test.properties',
-                'welcome',
-                {
-                    '#1': EXTERNAL_ARGUMENT('username'),
-                    '#2': EXTERNAL_ARGUMENT('appname')
-                }
-            )
+        transform = REPLACE(
+            'test.properties',
+            'welcome',
+            {
+                '#1': EXTERNAL_ARGUMENT('username'),
+                '#2': EXTERNAL_ARGUMENT('appname')
+            }
         )
 
         self.assertEqual(
-            evaluate(self, msg).to_json(),
-            ftl_message_to_json('''
-                welcome = Welcome, { $username }, to { $appname }!
-            ''')
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('Welcome, { $username }, to { $appname }!')
         )
 
     def test_replace_too_many(self):
-        msg = FTL.Message(
-            FTL.Identifier(u'welcome'),
-            value=REPLACE(
-                'test.properties',
-                'welcome',
-                {
-                    '#1': EXTERNAL_ARGUMENT('username'),
-                    '#2': EXTERNAL_ARGUMENT('appname'),
-                    '#3': EXTERNAL_ARGUMENT('extraname')
-                }
-            )
+        transform = REPLACE(
+            'test.properties',
+            'welcome',
+            {
+                '#1': EXTERNAL_ARGUMENT('username'),
+                '#2': EXTERNAL_ARGUMENT('appname'),
+                '#3': EXTERNAL_ARGUMENT('extraname')
+            }
         )
 
         self.assertEqual(
-            evaluate(self, msg).to_json(),
-            ftl_message_to_json('''
-                welcome = Welcome, { $username }, to { $appname }!
-            ''')
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('Welcome, { $username }, to { $appname }!')
         )
 
     def test_replace_too_few(self):
-        msg = FTL.Message(
-            FTL.Identifier(u'welcome'),
-            value=REPLACE(
-                'test.properties',
-                'welcome',
-                {
-                    '#1': EXTERNAL_ARGUMENT('username')
-                }
-            )
+        transform = REPLACE(
+            'test.properties',
+            'welcome',
+            {
+                '#1': EXTERNAL_ARGUMENT('username')
+            }
         )
 
         self.assertEqual(
-            evaluate(self, msg).to_json(),
-            ftl_message_to_json('''
-                welcome = Welcome, { $username }, to #2!
-            ''')
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('Welcome, { $username }, to #2!')
         )
 
     def test_replace_first(self):
-        msg = FTL.Message(
-            FTL.Identifier(u'first'),
-            value=REPLACE(
-                'test.properties',
-                'first',
-                {
-                    '#1': EXTERNAL_ARGUMENT('foo')
-                }
-            )
+        transform = REPLACE(
+            'test.properties',
+            'first',
+            {
+                '#1': EXTERNAL_ARGUMENT('foo')
+            }
         )
 
         self.assertEqual(
-            evaluate(self, msg).to_json(),
-            ftl_message_to_json('''
-                first = { $foo } Bar
-            ''')
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('{ $foo } Bar')
         )
 
     def test_replace_last(self):
-        msg = FTL.Message(
-            FTL.Identifier(u'last'),
-            value=REPLACE(
-                'test.properties',
-                'last',
-                {
-                    '#1': EXTERNAL_ARGUMENT('bar')
-                }
-            )
+        transform = REPLACE(
+            'test.properties',
+            'last',
+            {
+                '#1': EXTERNAL_ARGUMENT('bar')
+            }
         )
 
         self.assertEqual(
-            evaluate(self, msg).to_json(),
-            ftl_message_to_json('''
-                last = Foo { $bar }
-            ''')
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('Foo { $bar }')
         )
 
     def test_replace_with_placeable(self):
-        msg = FTL.Message(
-            FTL.Identifier(u'hello'),
-            value=REPLACE(
-                'test.properties',
-                'hello',
-                {
-                    '#1': FTL.Placeable(
-                        EXTERNAL_ARGUMENT('user')
-                    )
-                }
-            )
+        transform = REPLACE(
+            'test.properties',
+            'hello',
+            {
+                '#1': FTL.Placeable(
+                    EXTERNAL_ARGUMENT('user')
+                )
+            }
         )
 
         self.assertEqual(
-            evaluate(self, msg).to_json(),
-            ftl_message_to_json('''
-                hello = Hello, { $user }!
-            ''')
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('Hello, { $user }!')
         )
 
     def test_replace_with_text_element(self):
-        msg = FTL.Message(
-            FTL.Identifier(u'hello'),
-            value=REPLACE(
-                'test.properties',
-                'hello',
-                {
-                    '#1': FTL.TextElement('you')
-                }
-            )
+        transform = REPLACE(
+            'test.properties',
+            'hello',
+            {
+                '#1': FTL.TextElement('you')
+            }
         )
 
         self.assertEqual(
-            evaluate(self, msg).to_json(),
-            ftl_message_to_json('''
-                hello = Hello, you!
-            ''')
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('Hello, you!')
         )
 
     def test_replace_with_pattern(self):
-        msg = FTL.Message(
-            FTL.Identifier(u'hello'),
-            value=REPLACE(
-                'test.properties',
-                'hello',
-                {
-                    '#1': FTL.Pattern(
-                        elements=[
-                            FTL.TextElement('<img> '),
-                            FTL.Placeable(
-                                EXTERNAL_ARGUMENT('user')
-                            )
-                        ]
-                    )
-                }
-            )
+        transform = REPLACE(
+            'test.properties',
+            'hello',
+            {
+                '#1': FTL.Pattern(
+                    elements=[
+                        FTL.TextElement('<img> '),
+                        FTL.Placeable(
+                            EXTERNAL_ARGUMENT('user')
+                        )
+                    ]
+                )
+            }
         )
 
         self.assertEqual(
-            evaluate(self, msg).to_json(),
-            ftl_message_to_json('''
-                hello = Hello, <img> { $user }!
-            ''')
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('Hello, <img> { $user }!')
         )
 
 

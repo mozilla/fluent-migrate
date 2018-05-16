@@ -6,7 +6,7 @@ import unittest
 from compare_locales.parser import PropertiesParser, DTDParser
 
 import fluent.syntax.ast as FTL
-from fluent.migrate.util import parse, ftl_message_to_json
+from fluent.migrate.util import parse, ftl_pattern_to_json
 from fluent.migrate.helpers import EXTERNAL_ARGUMENT, MESSAGE_REFERENCE
 from fluent.migrate.transforms import evaluate, CONCAT, COPY, REPLACE
 
@@ -36,113 +36,78 @@ class TestConcatCopy(MockContext):
         ''')
 
     def test_concat_one(self):
-        msg = FTL.Message(
-            FTL.Identifier('hello'),
-            value=CONCAT(
-                COPY('test.properties', 'hello'),
-            )
+        transform = CONCAT(
+            COPY('test.properties', 'hello'),
         )
 
         self.assertEqual(
-            evaluate(self, msg).to_json(),
-            ftl_message_to_json('''
-                hello = Hello, world!
-            ''')
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('Hello, world!')
         )
 
     def test_concat_two(self):
-        msg = FTL.Message(
-            FTL.Identifier('hello'),
-            value=CONCAT(
-                COPY('test.properties', 'hello.start'),
-                COPY('test.properties', 'hello.end'),
-            )
+        transform = CONCAT(
+            COPY('test.properties', 'hello.start'),
+            COPY('test.properties', 'hello.end'),
         )
 
         self.assertEqual(
-            evaluate(self, msg).to_json(),
-            ftl_message_to_json('''
-                hello = Hello, world!
-            ''')
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('Hello, world!')
         )
 
     def test_concat_empty_one(self):
-        msg = FTL.Message(
-            FTL.Identifier('empty'),
-            value=CONCAT(
-                COPY('test.properties', 'empty'),
-            )
+        transform = CONCAT(
+            COPY('test.properties', 'empty'),
         )
 
         self.assertEqual(
-            evaluate(self, msg).to_json(),
-            ftl_message_to_json('''
-                empty = {""}
-            ''')
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('{""}')
         )
 
     def test_concat_empty_two(self):
-        msg = FTL.Message(
-            FTL.Identifier('empty'),
-            value=CONCAT(
-                COPY('test.properties', 'empty.start'),
-                COPY('test.properties', 'empty.end'),
-            )
+        transform = CONCAT(
+            COPY('test.properties', 'empty.start'),
+            COPY('test.properties', 'empty.end'),
         )
 
         self.assertEqual(
-            evaluate(self, msg).to_json(),
-            ftl_message_to_json('''
-                empty = {""}
-            ''')
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('{""}')
         )
 
     def test_concat_nonempty_empty(self):
-        msg = FTL.Message(
-            FTL.Identifier('combined'),
-            value=CONCAT(
-                COPY('test.properties', 'hello'),
-                COPY('test.properties', 'empty'),
-            )
+        transform = CONCAT(
+            COPY('test.properties', 'hello'),
+            COPY('test.properties', 'empty'),
         )
 
         self.assertEqual(
-            evaluate(self, msg).to_json(),
-            ftl_message_to_json('''
-                combined = Hello, world!
-            ''')
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('Hello, world!')
         )
 
     def test_concat_whitespace_begin(self):
-        msg = FTL.Message(
-            FTL.Identifier('hello'),
-            value=CONCAT(
-                COPY('test.properties', 'whitespace.begin.start'),
-                COPY('test.properties', 'whitespace.begin.end'),
-            )
+        transform = CONCAT(
+            COPY('test.properties', 'whitespace.begin.start'),
+            COPY('test.properties', 'whitespace.begin.end'),
         )
 
         self.assertEqual(
-            evaluate(self, msg).to_json(),
-            ftl_message_to_json('''
-                hello = {" "}Hello, world!
-            ''')
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('{" "}Hello, world!')
         )
 
     def test_concat_whitespace_end(self):
-        msg = FTL.Message(
-            FTL.Identifier('hello'),
-            value=CONCAT(
-                COPY('test.properties', 'whitespace.end.start'),
-                COPY('test.properties', 'whitespace.end.end'),
-            )
+        transform = CONCAT(
+            COPY('test.properties', 'whitespace.end.start'),
+            COPY('test.properties', 'whitespace.end.end'),
         )
 
         self.assertEqual(
-            evaluate(self, msg).to_json(),
-            ftl_message_to_json('''
-                hello = Hello, world!{" "}
-            ''')
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('Hello, world!{" "}')
         )
 
 
@@ -155,22 +120,17 @@ class TestConcatLiteral(MockContext):
         ''')
 
     def test_concat_literal(self):
-        msg = FTL.Message(
-            FTL.Identifier('update-failed'),
-            value=CONCAT(
-                COPY('test.properties', 'update.failed.start'),
-                FTL.TextElement('<a>'),
-                COPY('test.properties', 'update.failed.linkText'),
-                FTL.TextElement('</a>'),
-                COPY('test.properties', 'update.failed.end'),
-            )
+        transform = CONCAT(
+            COPY('test.properties', 'update.failed.start'),
+            FTL.TextElement('<a>'),
+            COPY('test.properties', 'update.failed.linkText'),
+            FTL.TextElement('</a>'),
+            COPY('test.properties', 'update.failed.end'),
         )
 
         self.assertEqual(
-            evaluate(self, msg).to_json(),
-            ftl_message_to_json('''
-                update-failed = Update failed. <a>Download manually</a>!
-            ''')
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('Update failed. <a>Download manually</a>!')
         )
 
 
@@ -182,37 +142,27 @@ class TestConcatInterpolate(MockContext):
         ''')
 
     def test_concat_placeable(self):
-        msg = FTL.Message(
-            FTL.Identifier('channel-desc'),
-            value=CONCAT(
-                COPY('test.properties', 'channel.description.start'),
-                FTL.Placeable(EXTERNAL_ARGUMENT('channelname')),
-                COPY('test.properties', 'channel.description.end'),
-            )
+        transform = CONCAT(
+            COPY('test.dtd', 'channel.description.start'),
+            FTL.Placeable(EXTERNAL_ARGUMENT('channelname')),
+            COPY('test.dtd', 'channel.description.end'),
         )
 
         self.assertEqual(
-            evaluate(self, msg).to_json(),
-            ftl_message_to_json('''
-                channel-desc = You are on the { $channelname } channel.
-            ''')
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('You are on the { $channelname } channel.')
         )
 
     def test_concat_expression(self):
-        msg = FTL.Message(
-            FTL.Identifier('channel-desc'),
-            value=CONCAT(
-                COPY('test.properties', 'channel.description.start'),
-                EXTERNAL_ARGUMENT('channelname'),
-                COPY('test.properties', 'channel.description.end'),
-            )
+        transform = CONCAT(
+            COPY('test.dtd', 'channel.description.start'),
+            EXTERNAL_ARGUMENT('channelname'),
+            COPY('test.dtd', 'channel.description.end'),
         )
 
         self.assertEqual(
-            evaluate(self, msg).to_json(),
-            ftl_message_to_json('''
-                channel-desc = You are on the { $channelname } channel.
-            ''')
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('You are on the { $channelname } channel.')
         )
 
 
@@ -227,41 +177,38 @@ class TestConcatReplace(MockContext):
         ''')
 
     def test_concat_replace(self):
-        msg = FTL.Message(
-            FTL.Identifier('community'),
-            value=CONCAT(
-                REPLACE(
-                    'test.properties',
-                    'community.start',
-                    {
-                        '&brandShortName;': MESSAGE_REFERENCE(
-                            'brand-short-name'
-                        )
-                    }
-                ),
-                FTL.TextElement('<a>'),
-                REPLACE(
-                    'test.properties',
-                    'community.mozillaLink',
-                    {
-                        '&vendorShortName;': MESSAGE_REFERENCE(
-                            'vendor-short-name'
-                        )
-                    }
-                ),
-                FTL.TextElement('</a>'),
-                COPY('test.properties', 'community.middle'),
-                FTL.TextElement('<a>'),
-                COPY('test.properties', 'community.creditsLink'),
-                FTL.TextElement('</a>'),
-                COPY('test.properties', 'community.end')
-            )
+        transform = CONCAT(
+            REPLACE(
+                'test.dtd',
+                'community.start',
+                {
+                    '&brandShortName;': MESSAGE_REFERENCE(
+                        'brand-short-name'
+                    )
+                }
+            ),
+            FTL.TextElement('<a>'),
+            REPLACE(
+                'test.properties',
+                'community.mozillaLink',
+                {
+                    '&vendorShortName;': MESSAGE_REFERENCE(
+                        'vendor-short-name'
+                    )
+                }
+            ),
+            FTL.TextElement('</a>'),
+            COPY('test.dtd', 'community.middle'),
+            FTL.TextElement('<a>'),
+            COPY('test.dtd', 'community.creditsLink'),
+            FTL.TextElement('</a>'),
+            COPY('test.dtd', 'community.end')
         )
 
         self.assertEqual(
-            evaluate(self, msg).to_json(),
-            ftl_message_to_json(
-                'community = { brand-short-name } is designed by '
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json(
+                '{ brand-short-name } is designed by '
                 '<a>{ vendor-short-name }</a>, a <a>global community</a> '
                 'working together to…'
             )
