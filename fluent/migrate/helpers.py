@@ -32,22 +32,44 @@ def MESSAGE_REFERENCE(name):
     )
 
 
-def transforms_from(ftl):
+def transforms_from(ftl, **substitutions):
     """Parse FTL code into a list of Message nodes with Transforms.
 
-    The FTL may use fabricated functions inside of placeables which will be
-    converted into actual migration transforms if their names match.
+    The FTL may use a fabricated COPY function inside of placeables which
+    will be converted into actual COPY migration transform.
 
         new-key = Hardcoded text { COPY("filepath.dtd", "string.key") }
 
-    Only COPY is supported.
+    For convenience, COPY may also refer to transforms_from's keyword
+    arguments via the MessageReference syntax:
+
+        transforms_from(\"""
+        new-key = Hardcoded text { COPY(file_dtd, "string.key") }
+        \""", file_dtd="very/long/path/to/a/file.dtd")
+
     """
 
     IMPLICIT_TRANSFORMS = ("CONCAT",)
     FORBIDDEN_TRANSFORMS = ("PLURALS", "REPLACE", "REPLACE_IN_TEXT")
 
+    def into_argument(node):
+        """Convert AST node into an argument to migration transforms."""
+        if isinstance(node, FTL.StringExpression):
+            return node.value
+        if isinstance(node, FTL.MessageReference):
+            try:
+                return substitutions[node.id.name]
+            except KeyError:
+                raise InvalidTransformError(
+                    "Unknown substitution in COPY: {}".format(
+                        node.id.name))
+        else:
+            raise InvalidTransformError(
+                "Invalid argument passed to COPY: {}".format(
+                    type(node).__name__))
+
     def into_transforms(node):
-        """Convert { COPY() } placeables into the COPY() transform."""
+        """Convert AST node into a migration transform."""
 
         if isinstance(node, FTL.Junk):
             anno = node.annotations[0]
@@ -57,8 +79,7 @@ def transforms_from(ftl):
         if isinstance(node, FTL.CallExpression):
             name = node.callee.name
             if name == "COPY":
-                # Convert StringExpressions to string values.
-                args = (arg.value for arg in node.args)
+                args = (into_argument(arg) for arg in node.args)
                 return COPY(*args)
             if name in IMPLICIT_TRANSFORMS:
                 raise NotSupportedError(

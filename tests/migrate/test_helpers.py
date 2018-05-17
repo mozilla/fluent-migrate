@@ -255,3 +255,31 @@ new-key = { REPLACE() }
             transforms_from("""
 new-key = { COPY('path', 'key') }
 """)
+
+    def test_substitution(self):
+        parsed = transforms_from("""
+new-key = { COPY(from_path, "key") }
+""", from_path="path")
+
+        self.assert_transforms_equal(parsed, [
+            FTL.Message(
+                id=FTL.Identifier("new-key"),
+                value=CONCAT(
+                    COPY("path", "key")
+                )
+            )
+        ])
+
+    def test_unknown_substitution_name(self):
+        pattern = "Unknown substitution in COPY: unknown_path"
+        with six.assertRaisesRegex(self, InvalidTransformError, pattern):
+            transforms_from("""
+new-key = { COPY(unknown_path, "key") }
+""")
+
+    def test_invalid_argument_type(self):
+        pattern = "Invalid argument passed to COPY: ExternalArgument"
+        with six.assertRaisesRegex(self, InvalidTransformError, pattern):
+            transforms_from("""
+new-key = { COPY($invalid_type, "key") }
+""")
