@@ -95,6 +95,7 @@ class MergeContext(object):
         annots = [
             annot
             for entry in ast.body
+            if isinstance(entry, FTL.Junk)
             for annot in entry.annotations
         ]
 

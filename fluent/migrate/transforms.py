@@ -85,7 +85,7 @@ def get_text(element):
     if isinstance(element, FTL.TextElement):
         return element.value
     if isinstance(element, FTL.Placeable):
-        if isinstance(element.expression, FTL.StringExpression):
+        if isinstance(element.expression, FTL.StringLiteral):
             return element.expression.value
         else:
             return None
@@ -116,14 +116,14 @@ def extract_whitespace(regex, element):
     '''Extract leading or trailing whitespace from a TextElement.
 
     Return a tuple of (Placeable, TextElement) in which the Placeable
-    encodes the extracted whitespace as a StringExpression and the
+    encodes the extracted whitespace as a StringLiteral and the
     TextElement has the same amount of whitespace removed. The
     Placeable with the extracted whitespace is always returned first.
     '''
     match = re.search(regex, element.value)
     if match:
         whitespace = match.group('whitespace')
-        placeable = FTL.Placeable(FTL.StringExpression(whitespace))
+        placeable = FTL.Placeable(FTL.StringLiteral(whitespace))
         if whitespace == element.value:
             return placeable, None
         else:
@@ -161,7 +161,7 @@ class Transform(FTL.BaseNode):
 
         # Handle empty values
         if len(normalized) == 0:
-            empty = FTL.Placeable(FTL.StringExpression(''))
+            empty = FTL.Placeable(FTL.StringLiteral(''))
             return FTL.Pattern([empty])
 
         # Handle explicit leading whitespace
@@ -355,7 +355,7 @@ class PLURALS(Source):
             )
 
         select = FTL.SelectExpression(
-            expression=selector,
+            selector=selector,
             variants=[
                 createVariant(key, form)
                 for key, form in pairs

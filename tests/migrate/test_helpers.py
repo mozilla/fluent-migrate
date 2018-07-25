@@ -95,7 +95,7 @@ new-key = Prefix { $argument } postfix.
                 value=CONCAT(
                     FTL.TextElement("Prefix "),
                     FTL.Placeable(
-                        FTL.ExternalArgument(
+                        FTL.VariableReference(
                             FTL.Identifier("argument")
                         )
                     ),
@@ -119,7 +119,7 @@ new-key = Prefix { PLATFORM() ->
                     FTL.TextElement("Prefix "),
                     FTL.Placeable(
                         FTL.SelectExpression(
-                            expression=FTL.CallExpression(
+                            selector=FTL.CallExpression(
                                 callee=FTL.Function("PLATFORM")
                             ),
                             variants=[
@@ -210,7 +210,7 @@ new-key =
                 value=CONCAT(
                     FTL.Placeable(
                         FTL.SelectExpression(
-                            expression=FTL.CallExpression(
+                            selector=FTL.CallExpression(
                                 callee=FTL.Function("PLATFORM")
                             ),
                             variants=[
@@ -278,7 +278,7 @@ new-key = { COPY(unknown_path, "key") }
 """)
 
     def test_invalid_argument_type(self):
-        pattern = "Invalid argument passed to COPY: ExternalArgument"
+        pattern = "Invalid argument passed to COPY: VariableReference"
         with six.assertRaisesRegex(self, InvalidTransformError, pattern):
             transforms_from("""
 new-key = { COPY($invalid_type, "key") }

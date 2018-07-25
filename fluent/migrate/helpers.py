@@ -16,12 +16,16 @@ from .transforms import Transform, CONCAT, COPY
 from .errors import NotSupportedError, InvalidTransformError
 
 
-def EXTERNAL_ARGUMENT(name):
+def VARIABLE_REFERENCE(name):
     """Create an ExternalArgument expression."""
 
-    return FTL.ExternalArgument(
+    return FTL.VariableReference(
         id=FTL.Identifier(name)
     )
+
+
+# Backwards Compat:
+EXTERNAL_ARGUMENT = VARIABLE_REFERENCE
 
 
 def MESSAGE_REFERENCE(name):
@@ -54,7 +58,7 @@ def transforms_from(ftl, **substitutions):
 
     def into_argument(node):
         """Convert AST node into an argument to migration transforms."""
-        if isinstance(node, FTL.StringExpression):
+        if isinstance(node, FTL.StringLiteral):
             return node.value
         if isinstance(node, FTL.MessageReference):
             try:
@@ -79,7 +83,7 @@ def transforms_from(ftl, **substitutions):
         if isinstance(node, FTL.CallExpression):
             name = node.callee.name
             if name == "COPY":
-                args = (into_argument(arg) for arg in node.args)
+                args = (into_argument(arg) for arg in node.positional)
                 return COPY(*args)
             if name in IMPLICIT_TRANSFORMS:
                 raise NotSupportedError(
