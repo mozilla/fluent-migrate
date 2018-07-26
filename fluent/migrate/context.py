@@ -39,10 +39,10 @@ class MergeContext(object):
           language.  The translations from these files will be transformed
           into FTL and merged into the existing FTL files for this language.
 
-        - A list of `FTL.Message` objects some of whose nodes are special
-          helper or transform nodes:
+        - A list of `FTL.Message` or `FTL.Term` objects some of whose nodes
+          are special helper or transform nodes:
 
-              helpers: EXTERNAL_ARGUMENT, MESSAGE_REFERENCE
+              helpers: VARIABLE_REFERENCE, MESSAGE_REFERENCE, TERM_REFERENCE
               transforms: COPY, REPLACE_IN_TEXT, REPLACE, PLURALS, CONCAT
     """
 

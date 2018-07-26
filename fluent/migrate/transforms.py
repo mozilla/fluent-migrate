@@ -51,11 +51,11 @@ TextElement by PLURALS and then run through the REPLACE_IN_TEXT transform.
         value=PLURALS(
             'aboutDownloads.dtd',
             'deleteAll',
-            EXTERNAL_ARGUMENT('num'),
+            VARIABLE_REFERENCE('num'),
             lambda text: REPLACE_IN_TEXT(
                 text,
                 {
-                    '#1': EXTERNAL_ARGUMENT('num')
+                    '#1': VARIABLE_REFERENCE('num')
                 }
             )
         )

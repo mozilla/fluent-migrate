@@ -7,7 +7,7 @@ from compare_locales.parser import PropertiesParser
 
 import fluent.syntax.ast as FTL
 from fluent.migrate.util import parse, ftl_pattern_to_json
-from fluent.migrate.helpers import EXTERNAL_ARGUMENT
+from fluent.migrate.helpers import VARIABLE_REFERENCE
 from fluent.migrate.transforms import evaluate, REPLACE
 
 
@@ -35,7 +35,7 @@ class TestReplace(MockContext):
             'test.properties',
             'empty',
             {
-                '#1': EXTERNAL_ARGUMENT('arg')
+                '#1': VARIABLE_REFERENCE('arg')
             }
         )
 
@@ -49,7 +49,7 @@ class TestReplace(MockContext):
             'test.properties',
             'hello',
             {
-                '#1': EXTERNAL_ARGUMENT('username')
+                '#1': VARIABLE_REFERENCE('username')
             }
         )
 
@@ -63,8 +63,8 @@ class TestReplace(MockContext):
             'test.properties',
             'welcome',
             {
-                '#1': EXTERNAL_ARGUMENT('username'),
-                '#2': EXTERNAL_ARGUMENT('appname')
+                '#1': VARIABLE_REFERENCE('username'),
+                '#2': VARIABLE_REFERENCE('appname')
             }
         )
 
@@ -78,9 +78,9 @@ class TestReplace(MockContext):
             'test.properties',
             'welcome',
             {
-                '#1': EXTERNAL_ARGUMENT('username'),
-                '#2': EXTERNAL_ARGUMENT('appname'),
-                '#3': EXTERNAL_ARGUMENT('extraname')
+                '#1': VARIABLE_REFERENCE('username'),
+                '#2': VARIABLE_REFERENCE('appname'),
+                '#3': VARIABLE_REFERENCE('extraname')
             }
         )
 
@@ -94,7 +94,7 @@ class TestReplace(MockContext):
             'test.properties',
             'welcome',
             {
-                '#1': EXTERNAL_ARGUMENT('username')
+                '#1': VARIABLE_REFERENCE('username')
             }
         )
 
@@ -108,7 +108,7 @@ class TestReplace(MockContext):
             'test.properties',
             'first',
             {
-                '#1': EXTERNAL_ARGUMENT('foo')
+                '#1': VARIABLE_REFERENCE('foo')
             }
         )
 
@@ -122,7 +122,7 @@ class TestReplace(MockContext):
             'test.properties',
             'last',
             {
-                '#1': EXTERNAL_ARGUMENT('bar')
+                '#1': VARIABLE_REFERENCE('bar')
             }
         )
 
@@ -137,7 +137,7 @@ class TestReplace(MockContext):
             'hello',
             {
                 '#1': FTL.Placeable(
-                    EXTERNAL_ARGUMENT('user')
+                    VARIABLE_REFERENCE('user')
                 )
             }
         )
@@ -170,7 +170,7 @@ class TestReplace(MockContext):
                     elements=[
                         FTL.TextElement('<img> '),
                         FTL.Placeable(
-                            EXTERNAL_ARGUMENT('user')
+                            VARIABLE_REFERENCE('user')
                         )
                     ]
                 )

@@ -24,14 +24,18 @@ def VARIABLE_REFERENCE(name):
     )
 
 
-# Backwards Compat:
-EXTERNAL_ARGUMENT = VARIABLE_REFERENCE
-
-
 def MESSAGE_REFERENCE(name):
     """Create a MessageReference expression."""
 
     return FTL.MessageReference(
+        id=FTL.Identifier(name)
+    )
+
+
+def TERM_REFERENCE(name):
+    """Create a TermReference expression."""
+
+    return FTL.TermReference(
         id=FTL.Identifier(name)
     )
 

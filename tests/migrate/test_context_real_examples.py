@@ -8,7 +8,7 @@ import unittest
 import fluent.syntax.ast as FTL
 from fluent.migrate.util import ftl_resource_to_json, to_json
 from fluent.migrate.context import MergeContext
-from fluent.migrate.helpers import EXTERNAL_ARGUMENT, MESSAGE_REFERENCE
+from fluent.migrate.helpers import VARIABLE_REFERENCE, MESSAGE_REFERENCE
 from fluent.migrate.transforms import (
     CONCAT, COPY, PLURALS, REPLACE_IN_TEXT, REPLACE
 )
@@ -145,11 +145,11 @@ class TestMergeAboutDownloads(unittest.TestCase):
                 value=PLURALS(
                     'aboutDownloads.properties',
                     'downloadMessage.deleteAll',
-                    EXTERNAL_ARGUMENT('num'),
+                    VARIABLE_REFERENCE('num'),
                     lambda text: REPLACE_IN_TEXT(
                         text,
                         {
-                            '#1': EXTERNAL_ARGUMENT('num')
+                            '#1': VARIABLE_REFERENCE('num')
                         }
                     )
                 )
@@ -300,7 +300,7 @@ class TestMergeAboutDialog(unittest.TestCase):
                     COPY(
                         'aboutDialog.dtd', 'channel.description.start'
                     ),
-                    EXTERNAL_ARGUMENT('channelname'),
+                    VARIABLE_REFERENCE('channelname'),
                     COPY('aboutDialog.dtd', 'channel.description.end'),
                 )
             ),

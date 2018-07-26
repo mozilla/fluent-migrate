@@ -10,7 +10,7 @@ import fluent.syntax.ast as FTL
 from fluent.migrate.errors import NotSupportedError
 from fluent.migrate.transforms import Source, COPY, PLURALS, REPLACE
 from fluent.migrate.util import parse
-from fluent.migrate.helpers import EXTERNAL_ARGUMENT
+from fluent.migrate.helpers import VARIABLE_REFERENCE
 
 
 class TestNotSupportedError(unittest.TestCase):
@@ -30,7 +30,7 @@ class TestNotSupportedError(unittest.TestCase):
             PLURALS(
                 'test.ftl',
                 'deleteAll',
-                EXTERNAL_ARGUMENT('num')
+                VARIABLE_REFERENCE('num')
             )
 
     def test_replace(self):
@@ -40,7 +40,7 @@ class TestNotSupportedError(unittest.TestCase):
                 'test.ftl',
                 'hello',
                 {
-                    '#1': EXTERNAL_ARGUMENT('username')
+                    '#1': VARIABLE_REFERENCE('username')
                 }
             )
 

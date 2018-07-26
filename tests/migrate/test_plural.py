@@ -6,7 +6,7 @@ import unittest
 from compare_locales.parser import PropertiesParser
 
 from fluent.migrate.util import parse, ftl_pattern_to_json
-from fluent.migrate.helpers import EXTERNAL_ARGUMENT
+from fluent.migrate.helpers import VARIABLE_REFERENCE
 from fluent.migrate.transforms import evaluate, PLURALS, REPLACE_IN_TEXT
 
 
@@ -28,7 +28,7 @@ class TestPlural(MockContext):
         self.transform = PLURALS(
             'test.properties',
             'plural',
-            EXTERNAL_ARGUMENT('num')
+            VARIABLE_REFERENCE('num')
         )
 
     def test_plural(self):
@@ -79,7 +79,7 @@ class TestPluralOrder(MockContext):
         self.transform = PLURALS(
             'test.properties',
             'plural',
-            EXTERNAL_ARGUMENT('num')
+            VARIABLE_REFERENCE('num')
         )
 
     def test_unordinary_order(self):
@@ -106,11 +106,11 @@ class TestPluralReplace(MockContext):
         transform = PLURALS(
             'test.properties',
             'plural',
-            EXTERNAL_ARGUMENT('num'),
+            VARIABLE_REFERENCE('num'),
             lambda text: REPLACE_IN_TEXT(
                 text,
                 {
-                    '#1': EXTERNAL_ARGUMENT('num')
+                    '#1': VARIABLE_REFERENCE('num')
                 }
             )
         )
@@ -138,7 +138,7 @@ class TestNoPlural(MockContext):
         transform = PLURALS(
             'test.properties',
             'plural-other',
-            EXTERNAL_ARGUMENT('num')
+            VARIABLE_REFERENCE('num')
         )
 
         self.assertEqual(
@@ -151,7 +151,7 @@ class TestNoPlural(MockContext):
         transform = PLURALS(
             'test.properties',
             'plural-one-other',
-            EXTERNAL_ARGUMENT('num')
+            VARIABLE_REFERENCE('num')
         )
 
         self.assertEqual(
@@ -164,7 +164,7 @@ class TestNoPlural(MockContext):
         transform = PLURALS(
             'test.properties',
             'plural-other',
-            EXTERNAL_ARGUMENT('num')
+            VARIABLE_REFERENCE('num')
         )
 
         self.assertEqual(
@@ -180,7 +180,7 @@ class TestEmpty(MockContext):
         self.transform = PLURALS(
             'test.properties',
             'plural',
-            EXTERNAL_ARGUMENT('num')
+            VARIABLE_REFERENCE('num')
         )
 
     def test_non_default_empty(self):

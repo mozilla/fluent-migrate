@@ -7,7 +7,7 @@ from compare_locales.parser import PropertiesParser, DTDParser
 
 import fluent.syntax.ast as FTL
 from fluent.migrate.util import parse, ftl_pattern_to_json
-from fluent.migrate.helpers import EXTERNAL_ARGUMENT, MESSAGE_REFERENCE
+from fluent.migrate.helpers import VARIABLE_REFERENCE, MESSAGE_REFERENCE
 from fluent.migrate.transforms import evaluate, CONCAT, COPY, REPLACE
 
 
@@ -144,7 +144,7 @@ class TestConcatInterpolate(MockContext):
     def test_concat_placeable(self):
         transform = CONCAT(
             COPY('test.dtd', 'channel.description.start'),
-            FTL.Placeable(EXTERNAL_ARGUMENT('channelname')),
+            FTL.Placeable(VARIABLE_REFERENCE('channelname')),
             COPY('test.dtd', 'channel.description.end'),
         )
 
@@ -156,7 +156,7 @@ class TestConcatInterpolate(MockContext):
     def test_concat_expression(self):
         transform = CONCAT(
             COPY('test.dtd', 'channel.description.start'),
-            EXTERNAL_ARGUMENT('channelname'),
+            VARIABLE_REFERENCE('channelname'),
             COPY('test.dtd', 'channel.description.end'),
         )
 
