@@ -42,7 +42,7 @@ class Blame(object):
         self.blame[path] = {}
 
         self.readFile(parser, path)
-        entities, emap = parser.parse()
+        entities = parser.parse()
         for e in entities:
             if isinstance(e, Junk):
                 continue
