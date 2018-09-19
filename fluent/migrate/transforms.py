@@ -207,8 +207,11 @@ class Source(Transform):
         self.path = path
         self.key = key
 
+    def get_text(self, ctx):
+        return ctx.get_source(self.path, self.key)
+
     def __call__(self, ctx):
-        text = ctx.get_source(self.path, self.key)
+        text = self.get_text(ctx)
         return FTL.TextElement(text)
 
 
@@ -218,6 +221,23 @@ class COPY(Source):
     def __call__(self, ctx):
         element = super(COPY, self).__call__(ctx)
         return Transform.pattern_of(element)
+
+
+class TRIM_COPY(COPY):
+    """Create a Pattern with stripped leading and trailing white-space.
+
+    Recommended to use for multi-line DTD messages.
+    """
+
+    def get_text(self, ctx):
+        text = super(TRIM_COPY, self).get_text(ctx)
+        # strip leading white-space
+        text = re.sub('^[ \t]+', '', text, flags=re.M)
+        # strip trailing white-space
+        text = re.sub('[ \t]+$', '', text, flags=re.M)
+        # strip leading and trailing empty lines
+        text = text.strip('\r\n')
+        return text
 
 
 class REPLACE_IN_TEXT(Transform):
