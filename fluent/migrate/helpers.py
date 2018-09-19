@@ -12,7 +12,7 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 from fluent.syntax import FluentParser, ast as FTL
-from .transforms import Transform, CONCAT, COPY
+from .transforms import Transform, CONCAT, COPY, TRIM_COPY
 from .errors import NotSupportedError, InvalidTransformError
 
 
@@ -89,6 +89,9 @@ def transforms_from(ftl, **substitutions):
             if name == "COPY":
                 args = (into_argument(arg) for arg in node.positional)
                 return COPY(*args)
+            if name == "TRIM_COPY":
+                args = (into_argument(arg) for arg in node.positional)
+                return TRIM_COPY(*args)
             if name in IMPLICIT_TRANSFORMS:
                 raise NotSupportedError(
                     "{} may not be used with transforms_from(). It runs "
