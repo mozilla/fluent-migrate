@@ -12,7 +12,7 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 from fluent.syntax import FluentParser, ast as FTL
-from .transforms import Transform, CONCAT, COPY, TRIM_COPY
+from .transforms import Transform, CONCAT, COPY
 from .errors import NotSupportedError, InvalidTransformError
 
 
@@ -63,6 +63,11 @@ def transforms_from(ftl, **substitutions):
     def into_argument(node):
         """Convert AST node into an argument to migration transforms."""
         if isinstance(node, FTL.StringLiteral):
+            # Special cases for booleans which don't exist in Fluent.
+            if node.value == "True":
+                return True
+            if node.value == "False":
+                return False
             return node.value
         if isinstance(node, FTL.MessageReference):
             try:
@@ -88,10 +93,10 @@ def transforms_from(ftl, **substitutions):
             name = node.callee.name
             if name == "COPY":
                 args = (into_argument(arg) for arg in node.positional)
-                return COPY(*args)
-            if name == "TRIM_COPY":
-                args = (into_argument(arg) for arg in node.positional)
-                return TRIM_COPY(*args)
+                kwargs = {
+                    arg.name.name: into_argument(arg.value)
+                    for arg in node.named}
+                return COPY(*args, **kwargs)
             if name in IMPLICIT_TRANSFORMS:
                 raise NotSupportedError(
                     "{} may not be used with transforms_from(). It runs "

@@ -8,7 +8,7 @@ from six.moves import zip_longest
 
 import fluent.syntax.ast as FTL
 from fluent.migrate.helpers import transforms_from
-from fluent.migrate.transforms import CONCAT, COPY, TRIM_COPY
+from fluent.migrate.transforms import CONCAT, COPY
 from fluent.migrate.errors import NotSupportedError, InvalidTransformError
 
 
@@ -197,14 +197,14 @@ new-key = { COPY("path", "key") }
 
     def test_trim_copy_in_value(self):
         parsed = transforms_from("""
-new-key = { TRIM_COPY("path", "key") }
+new-key = { COPY("path", "key", trim: "True") }
 """)
 
         self.assert_transforms_equal(parsed, [
             FTL.Message(
                 id=FTL.Identifier("new-key"),
                 value=CONCAT(
-                    TRIM_COPY("path", "key")
+                    COPY("path", "key", trim=True)
                 )
             )
         ])

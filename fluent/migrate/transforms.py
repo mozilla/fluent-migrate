@@ -198,7 +198,7 @@ class Source(Transform):
 
     """
 
-    def __init__(self, path, key):
+    def __init__(self, path, key, trim=False):
         if path.endswith('.ftl'):
             raise NotSupportedError(
                 'Migrating translations from Fluent files is not supported '
@@ -206,12 +206,25 @@ class Source(Transform):
 
         self.path = path
         self.key = key
+        self.trim = trim
 
     def get_text(self, ctx):
         return ctx.get_source(self.path, self.key)
 
+    @staticmethod
+    def trim_text(text):
+        # strip leading white-space
+        text = re.sub('^[ \t]+', '', text, flags=re.M)
+        # strip trailing white-space
+        text = re.sub('[ \t]+$', '', text, flags=re.M)
+        # strip leading and trailing empty lines
+        text = text.strip('\r\n')
+        return text
+
     def __call__(self, ctx):
         text = self.get_text(ctx)
+        if self.trim:
+            text = self.trim_text(text)
         return FTL.TextElement(text)
 
 
@@ -221,23 +234,6 @@ class COPY(Source):
     def __call__(self, ctx):
         element = super(COPY, self).__call__(ctx)
         return Transform.pattern_of(element)
-
-
-class TRIM_COPY(COPY):
-    """Create a Pattern with stripped leading and trailing white-space.
-
-    Recommended to use for multi-line DTD messages.
-    """
-
-    def get_text(self, ctx):
-        text = super(TRIM_COPY, self).get_text(ctx)
-        # strip leading white-space
-        text = re.sub('^[ \t]+', '', text, flags=re.M)
-        # strip trailing white-space
-        text = re.sub('[ \t]+$', '', text, flags=re.M)
-        # strip leading and trailing empty lines
-        text = text.strip('\r\n')
-        return text
 
 
 class REPLACE_IN_TEXT(Transform):
@@ -292,8 +288,8 @@ class REPLACE(Source):
     replaced with FTL placeables using the `REPLACE_IN_TEXT` transform.
     """
 
-    def __init__(self, path, key, replacements):
-        super(REPLACE, self).__init__(path, key)
+    def __init__(self, path, key, replacements, **kwargs):
+        super(REPLACE, self).__init__(path, key, **kwargs)
         self.replacements = replacements
 
     def __call__(self, ctx):
@@ -313,8 +309,9 @@ class PLURALS(Source):
     """
     DEFAULT_ORDER = ('zero', 'one', 'two', 'few', 'many', 'other')
 
-    def __init__(self, path, key, selector, foreach=Transform.pattern_of):
-        super(PLURALS, self).__init__(path, key)
+    def __init__(self, path, key, selector, foreach=Transform.pattern_of,
+                 **kwargs):
+        super(PLURALS, self).__init__(path, key, **kwargs)
         self.selector = selector
         self.foreach = foreach
 
