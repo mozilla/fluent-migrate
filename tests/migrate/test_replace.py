@@ -28,6 +28,8 @@ class TestReplace(MockContext):
             welcome = Welcome, #1, to #2!
             first = #1 Bar
             last = Foo #1
+            multiple = First: #1 Second: #1
+            interleaved = #1 #2 #1 #2
         ''')
 
     def test_replace_empty(self):
@@ -129,6 +131,35 @@ class TestReplace(MockContext):
         self.assertEqual(
             evaluate(self, transform).to_json(),
             ftl_pattern_to_json('Foo { $bar }')
+        )
+
+    def test_replace_multiple(self):
+        transform = REPLACE(
+            'test.properties',
+            'multiple',
+            {
+                '#1': VARIABLE_REFERENCE('var')
+            }
+        )
+
+        self.assertEqual(
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('First: { $var } Second: { $var }')
+        )
+
+    def test_replace_interleaved(self):
+        transform = REPLACE(
+            'test.properties',
+            'interleaved',
+            {
+                '#1': VARIABLE_REFERENCE('foo'),
+                '#2': VARIABLE_REFERENCE('bar')
+            }
+        )
+
+        self.assertEqual(
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('{ $foo } { $bar } { $foo } { $bar }')
         )
 
     def test_replace_with_placeable(self):

@@ -240,8 +240,8 @@ class REPLACE_IN_TEXT(Transform):
     """Create a Pattern from a TextElement and replace legacy placeables.
 
     The original placeables are defined as keys on the `replacements` dict.
-    For each key the value is defined as a FTL Pattern, Placeable,
-    TextElement or Expressions to be interpolated.
+    For each key the value must be defined as a FTL Pattern, Placeable,
+    TextElement or Expression to be interpolated.
     """
 
     def __init__(self, element, replacements):
@@ -249,17 +249,26 @@ class REPLACE_IN_TEXT(Transform):
         self.replacements = replacements
 
     def __call__(self, ctx):
-        # Only replace placeables which are present in the translation.
-        replacements = {
-            key: evaluate(ctx, repl)
-            for key, repl in self.replacements.items()
-            if key in self.element.value
+        # For each specified replacement, find all indices of the original
+        # placeable in the source translation. If missing, the list of indices
+        # will be empty.
+        key_indices = {
+            key: [m.start() for m in re.finditer(key, self.element.value)]
+            for key in self.replacements.keys()
         }
 
-        # Order the original placeables by their position in the translation.
-        keys_in_order = sorted(
-            replacements.keys(),
-            key=lambda x: self.element.value.find(x)
+        # Build a dict of indices to replacement keys.
+        keys_indexed = {}
+        for key, indices in key_indices.items():
+            for index in indices:
+                keys_indexed[index] = key
+
+        # Order the replacements by the position of the original placeable in
+        # the translation.
+        replacements = (
+            (key, evaluate(ctx, self.replacements[key]))
+            for index, key
+            in sorted(keys_indexed.items(), key=lambda x: x[0])
         )
 
         # A list of PatternElements built from the legacy translation and the
@@ -271,12 +280,12 @@ class REPLACE_IN_TEXT(Transform):
         # original placeable the translation will be partitioned around it and
         # the text before it will be converted into an `FTL.TextElement` and
         # the placeable will be replaced with its replacement.
-        for key in keys_in_order:
+        for key, node in replacements:
             before, key, tail = tail.partition(key)
             elements.append(FTL.TextElement(before))
-            elements.append(replacements[key])
+            elements.append(node)
 
-        # Dont' forget about the tail after the loop ends.
+        # Don't forget about the tail after the loop ends.
         elements.append(FTL.TextElement(tail))
         return Transform.pattern_of(*elements)
 
