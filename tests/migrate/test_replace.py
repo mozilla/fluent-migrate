@@ -214,5 +214,170 @@ class TestReplace(MockContext):
         )
 
 
+class TestNormalize(MockContext):
+    def setUp(self):
+        self.strings = parse(PropertiesParser, '''
+            empty =
+            simple = %1$S
+            double = %2$S %1$S
+            one = %d
+            two = %d %S
+            hidden = %2$S%1$0.S
+            hidden_w_out = %0.S%S
+            escaped = %d%%
+        ''')
+
+    def test_empty(self):
+        transform = REPLACE(
+            'test.properties',
+            'empty',
+            {
+                '%1$S': FTL.Placeable(
+                    VARIABLE_REFERENCE('user')
+                )
+            },
+            normalize_printf=True
+        )
+
+        self.assertEqual(
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('{""}')
+        )
+
+    def test_simple(self):
+        transform = REPLACE(
+            'test.properties',
+            'simple',
+            {
+                '%1$S': FTL.Placeable(
+                    VARIABLE_REFERENCE('user')
+                )
+            },
+            normalize_printf=True
+        )
+
+        self.assertEqual(
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('{ $user }')
+        )
+
+    def test_double(self):
+        transform = REPLACE(
+            'test.properties',
+            'double',
+            {
+                '%1$S': FTL.Placeable(
+                    VARIABLE_REFERENCE('user')
+                ),
+                '%2$S': FTL.Placeable(
+                    VARIABLE_REFERENCE('count')
+                ),
+            },
+            normalize_printf=True
+        )
+
+        self.assertEqual(
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('{ $count } { $user }')
+        )
+
+    def test_one(self):
+        transform = REPLACE(
+            'test.properties',
+            'one',
+            {
+                '%1$d': FTL.Placeable(
+                    VARIABLE_REFERENCE('count')
+                ),
+                '%2$S': FTL.Placeable(
+                    VARIABLE_REFERENCE('user')
+                ),
+            },
+            normalize_printf=True
+        )
+
+        self.assertEqual(
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('{ $count }')
+        )
+
+    def test_two(self):
+        transform = REPLACE(
+            'test.properties',
+            'two',
+            {
+                '%1$d': FTL.Placeable(
+                    VARIABLE_REFERENCE('count')
+                ),
+                '%2$S': FTL.Placeable(
+                    VARIABLE_REFERENCE('user')
+                ),
+            },
+            normalize_printf=True
+        )
+
+        self.assertEqual(
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('{ $count } { $user }')
+        )
+
+    def test_hidden(self):
+        transform = REPLACE(
+            'test.properties',
+            'hidden',
+            {
+                '%1$S': FTL.Placeable(
+                    VARIABLE_REFERENCE('user')
+                ),
+                '%2$S': FTL.Placeable(
+                    VARIABLE_REFERENCE('count')
+                ),
+            },
+            normalize_printf=True
+        )
+
+        self.assertEqual(
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('{ $count }')
+        )
+
+    def test_hidden_w_out(self):
+        transform = REPLACE(
+            'test.properties',
+            'hidden_w_out',
+            {
+                '%1$S': FTL.Placeable(
+                    VARIABLE_REFERENCE('user')
+                ),
+                '%2$S': FTL.Placeable(
+                    VARIABLE_REFERENCE('count')
+                ),
+            },
+            normalize_printf=True
+        )
+
+        self.assertEqual(
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('{ $count }')
+        )
+
+    def test_escaped(self):
+        transform = REPLACE(
+            'test.properties',
+            'escaped',
+            {
+                '%1$d': FTL.Placeable(
+                    VARIABLE_REFERENCE('count')
+                ),
+            },
+            normalize_printf=True
+        )
+
+        self.assertEqual(
+            evaluate(self, transform).to_json(),
+            ftl_pattern_to_json('{ $count }%')
+        )
+
+
 if __name__ == '__main__':
     unittest.main()

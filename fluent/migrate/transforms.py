@@ -236,6 +236,43 @@ class COPY(Source):
         return Transform.pattern_of(element)
 
 
+PRINTF = re.compile(
+    r'%(?P<good>%|'
+    r'(?:(?P<number>[1-9][0-9]*)\$)?'
+    r'(?P<width>\*|[0-9]+)?'
+    r'(?P<prec>\.(?:\*|[0-9]+)?)?'
+    r'(?P<spec>[duxXosScpfg]))'
+)
+
+
+def number():
+    i = 1
+    while True:
+        yield i
+        i += 1
+
+
+def normalize_printf(text):
+    """Normalize printf arguments so that they're all numbered.
+    Gecko forbids mixing unnumbered and numbered ones, so
+    we just need to convert unnumbered to numbered ones.
+    Also remove ones that have zero width, as they're intended
+    to be removed from the output by the localizer.
+    """
+    next_number = number()
+
+    def normalized(match):
+        if match.group('good') == '%':
+            return '%'
+        hidden = match.group('width') == '0'
+        if match.group('number'):
+            return '' if hidden else match.group()
+        num = next(next_number)
+        return '' if hidden else '%{}${}'.format(num, match.group('spec'))
+
+    return PRINTF.sub(normalized, text)
+
+
 class REPLACE_IN_TEXT(Transform):
     """Create a Pattern from a TextElement and replace legacy placeables.
 
@@ -244,16 +281,20 @@ class REPLACE_IN_TEXT(Transform):
     TextElement or Expression to be interpolated.
     """
 
-    def __init__(self, element, replacements):
+    def __init__(self, element, replacements, normalize_printf=False):
         self.element = element
         self.replacements = replacements
+        self.normalize_printf = normalize_printf
 
     def __call__(self, ctx):
         # For each specified replacement, find all indices of the original
         # placeable in the source translation. If missing, the list of indices
         # will be empty.
+        value = self.element.value
+        if self.normalize_printf:
+            value = normalize_printf(value)
         key_indices = {
-            key: [m.start() for m in re.finditer(key, self.element.value)]
+            key: [m.start() for m in re.finditer(re.escape(key), value)]
             for key in self.replacements.keys()
         }
 
@@ -274,7 +315,7 @@ class REPLACE_IN_TEXT(Transform):
         # A list of PatternElements built from the legacy translation and the
         # FTL replacements. It may contain empty or adjacent TextElements.
         elements = []
-        tail = self.element.value
+        tail = value
 
         # Convert original placeables and text into FTL Nodes. For each
         # original placeable the translation will be partitioned around it and
@@ -297,13 +338,20 @@ class REPLACE(Source):
     replaced with FTL placeables using the `REPLACE_IN_TEXT` transform.
     """
 
-    def __init__(self, path, key, replacements, **kwargs):
+    def __init__(
+        self, path, key, replacements,
+        normalize_printf=False, **kwargs
+    ):
         super(REPLACE, self).__init__(path, key, **kwargs)
         self.replacements = replacements
+        self.normalize_printf = normalize_printf
 
     def __call__(self, ctx):
         element = super(REPLACE, self).__call__(ctx)
-        return REPLACE_IN_TEXT(element, self.replacements)(ctx)
+        return REPLACE_IN_TEXT(
+            element, self.replacements,
+            normalize_printf=self.normalize_printf
+        )(ctx)
 
 
 class PLURALS(Source):
