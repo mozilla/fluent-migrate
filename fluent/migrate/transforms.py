@@ -423,7 +423,7 @@ class PLURALS(Source):
             # variant. Then evaluate it to a migrated FTL node.
             value = evaluate(ctx, self.foreach(form))
             return FTL.Variant(
-                key=FTL.VariantName(key),
+                key=FTL.Identifier(key),
                 value=value,
                 default=key == default_key
             )

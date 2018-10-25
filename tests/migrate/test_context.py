@@ -381,7 +381,7 @@ class TestMissingLocalizationStrings(unittest.TestCase):
                         ),
                         variants=[
                             FTL.Variant(
-                                key=FTL.VariantName('other'),
+                                key=FTL.Identifier('other'),
                                 default=True,
                                 value=COPY(
                                     'aboutDownloads.dtd',
@@ -410,7 +410,7 @@ class TestMissingLocalizationStrings(unittest.TestCase):
                         ),
                         variants=[
                             FTL.Variant(
-                                key=FTL.VariantName('windows'),
+                                key=FTL.Identifier('windows'),
                                 default=False,
                                 value=COPY(
                                     'aboutDownloads.dtd',
@@ -418,7 +418,7 @@ class TestMissingLocalizationStrings(unittest.TestCase):
                                 )
                             ),
                             FTL.Variant(
-                                key=FTL.VariantName('other'),
+                                key=FTL.Identifier('other'),
                                 default=True,
                                 value=COPY(
                                     'aboutDownloads.dtd',
@@ -447,7 +447,7 @@ class TestMissingLocalizationStrings(unittest.TestCase):
                         ),
                         variants=[
                             FTL.Variant(
-                                key=FTL.VariantName('windows'),
+                                key=FTL.Identifier('windows'),
                                 default=False,
                                 value=COPY(
                                     'aboutDownloads.dtd',
@@ -455,7 +455,7 @@ class TestMissingLocalizationStrings(unittest.TestCase):
                                 )
                             ),
                             FTL.Variant(
-                                key=FTL.VariantName('other'),
+                                key=FTL.Identifier('other'),
                                 default=True,
                                 value=COPY(
                                     'aboutDownloads.dtd',

@@ -124,14 +124,14 @@ new-key = Prefix { PLATFORM() ->
                             ),
                             variants=[
                                 FTL.Variant(
-                                    key=FTL.VariantName('macos'),
+                                    key=FTL.Identifier('macos'),
                                     default=False,
                                     value=CONCAT(
                                         FTL.TextElement("macOS")
                                     )
                                 ),
                                 FTL.Variant(
-                                    key=FTL.VariantName('other'),
+                                    key=FTL.Identifier('other'),
                                     default=True,
                                     value=CONCAT(
                                         FTL.TextElement("Other")
@@ -229,14 +229,14 @@ new-key =
                             ),
                             variants=[
                                 FTL.Variant(
-                                    key=FTL.VariantName('macos'),
+                                    key=FTL.Identifier('macos'),
                                     default=False,
                                     value=CONCAT(
                                         COPY("path", "key.mac")
                                     )
                                 ),
                                 FTL.Variant(
-                                    key=FTL.VariantName('other'),
+                                    key=FTL.Identifier('other'),
                                     default=True,
                                     value=CONCAT(
                                         COPY("path", "key.other")
