@@ -108,8 +108,14 @@ def chain_elements(elements):
                 'Expected Pattern, PatternElement or Expression')
 
 
-re_leading_ws = re.compile(r'^(?P<whitespace>\s+)(?P<text>.*?)$')
-re_trailing_ws = re.compile(r'^(?P<text>.*?)(?P<whitespace>\s+)$')
+re_leading_ws = re.compile(
+    r'\A(?:(?P<whitespace> +)(?P<text>.*?)|(?P<block_text>\n.*?))\Z',
+    re.S,
+)
+re_trailing_ws = re.compile(
+    r'\A(?:(?P<text>.*?)(?P<whitespace> +)|(?P<block_text>.*\n))\Z',
+    re.S
+)
 
 
 def extract_whitespace(regex, element):
@@ -119,15 +125,21 @@ def extract_whitespace(regex, element):
     encodes the extracted whitespace as a StringLiteral and the
     TextElement has the same amount of whitespace removed. The
     Placeable with the extracted whitespace is always returned first.
+    If the element starts or ends with a newline, add an empty
+    StringLiteral.
     '''
     match = re.search(regex, element.value)
     if match:
-        whitespace = match.group('whitespace')
+        # If white-space is None, we're a newline. Add an
+        # empty { "" }
+        whitespace = match.group('whitespace') or ''
         placeable = FTL.Placeable(FTL.StringLiteral(whitespace))
         if whitespace == element.value:
             return placeable, None
         else:
-            return placeable, FTL.TextElement(match.group('text'))
+            # Either text or block_text matched the rest.
+            text = match.group('text') or match.group('block_text')
+            return placeable, FTL.TextElement(text)
     else:
         return None, element
 

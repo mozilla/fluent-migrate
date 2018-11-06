@@ -4,9 +4,15 @@ from __future__ import absolute_import
 
 import unittest
 from compare_locales.parser import PropertiesParser
+from fluent.syntax.serializer import serialize_message
 
-from fluent.migrate.util import parse, ftl_pattern_to_json
+from fluent.migrate.util import (
+    ftl_resource_to_ast,
+    ftl_pattern_to_json,
+    parse,
+)
 from fluent.migrate.transforms import evaluate, COPY
+from fluent.migrate.helpers import transforms_from
 
 
 class MockContext(unittest.TestCase):
@@ -28,6 +34,9 @@ class TestCopy(MockContext):
             unicode.begin2 = \\u0020\\u0020Foo
             unicode.end1 = Foo\\u0020
             unicode.end2 = Foo\\u0020\\u0020
+            newline = \\nnext up is a \\n
+            leading-inline = \\u0020\\ncontinued
+            indented-second = \\n    indented
         ''')
 
     def test_copy(self):
@@ -84,6 +93,61 @@ class TestCopy(MockContext):
         self.assertEqual(
             evaluate(self, transform).to_json(),
             ftl_pattern_to_json('Foo{"  "}')
+        )
+
+    def test_bordering_newline(self):
+        transform = transforms_from(
+            'foo = { COPY("test.properties", "newline") }'
+        )[0]
+        msg = evaluate(self, transform)
+        output = serialize_message(msg)
+        ref = ftl_resource_to_ast("""\
+foo =
+    {""}
+    next up is a \n\
+    {""}
+""")
+        resource = ftl_resource_to_ast(output)
+
+        self.assertEqual(
+            resource.to_json(),
+            ref.to_json()
+        )
+
+    def test_leading_inline(self):
+        transform = transforms_from(
+            'foo = { COPY("test.properties", "leading-inline") }'
+        )[0]
+        msg = evaluate(self, transform)
+        output = serialize_message(msg)
+        ref = ftl_resource_to_ast("""\
+foo =
+  {" "}
+  continued
+""")
+        resource = ftl_resource_to_ast(output)
+
+        self.assertEqual(
+            resource.to_json(),
+            ref.to_json()
+        )
+
+    def test_indented_second(self):
+        transform = transforms_from(
+            'foo = { COPY("test.properties", "indented-second") }'
+        )[0]
+        msg = evaluate(self, transform)
+        output = serialize_message(msg)
+        ref = ftl_resource_to_ast("""\
+foo =
+  {""}
+      indented
+""")
+        resource = ftl_resource_to_ast(output)
+
+        self.assertEqual(
+            resource.to_json(),
+            ref.to_json()
         )
 
 
