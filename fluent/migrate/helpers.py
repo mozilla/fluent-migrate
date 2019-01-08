@@ -90,7 +90,7 @@ def transforms_from(ftl, **substitutions):
                 "Transform contains parse error: {}, at {}".format(
                     anno.message, anno.span.start))
         if isinstance(node, FTL.CallExpression):
-            name = node.callee.name
+            name = node.callee.id.name
             if name == "COPY":
                 args = (into_argument(arg) for arg in node.positional)
                 kwargs = {

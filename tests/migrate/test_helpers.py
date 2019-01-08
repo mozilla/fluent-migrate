@@ -120,7 +120,9 @@ new-key = Prefix { PLATFORM() ->
                     FTL.Placeable(
                         FTL.SelectExpression(
                             selector=FTL.CallExpression(
-                                callee=FTL.Function("PLATFORM")
+                                callee=FTL.FunctionReference(
+                                    id=FTL.Identifier("PLATFORM")
+                                )
                             ),
                             variants=[
                                 FTL.Variant(
@@ -225,7 +227,9 @@ new-key =
                     FTL.Placeable(
                         FTL.SelectExpression(
                             selector=FTL.CallExpression(
-                                callee=FTL.Function("PLATFORM")
+                                callee=FTL.FunctionReference(
+                                    id=FTL.Identifier("PLATFORM")
+                                )
                             ),
                             variants=[
                                 FTL.Variant(
@@ -297,3 +301,23 @@ new-key = { COPY(unknown_path, "key") }
             transforms_from("""
 new-key = { COPY($invalid_type, "key") }
 """)
+
+    def test_string_literal(self):
+        parsed = transforms_from("""
+new-key = {" "}postfix.
+""")
+
+        self.assert_transforms_equal(parsed, [
+            FTL.Message(
+                id=FTL.Identifier("new-key"),
+                value=CONCAT(
+                    FTL.Placeable(
+                        FTL.StringLiteral(
+                            raw=" ",
+                            value=" "
+                        )
+                    ),
+                    FTL.TextElement("postfix.")
+                )
+            )
+        ])
