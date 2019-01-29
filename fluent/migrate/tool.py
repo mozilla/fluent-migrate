@@ -8,7 +8,7 @@ import importlib
 import sys
 
 import hglib
-from hglib.util import b
+import six
 
 from fluent.migrate.context import MergeContext
 from fluent.migrate.errors import MigrationError
@@ -97,14 +97,14 @@ class Migrator(object):
 
     def serialize_changeset(self, snapshot):
         '''Write serialized FTL files to disk.'''
-        for path, content in snapshot.iteritems():
+        for path, content in six.iteritems(snapshot):
             fullpath = os.path.join(self.localization_dir, path)
             print('  Writing to {}'.format(fullpath))
             if not self.dry_run:
                 fulldir = os.path.dirname(fullpath)
                 if not os.path.isdir(fulldir):
                     os.makedirs(fulldir)
-                with open(fullpath, 'w') as f:
+                with open(fullpath, 'wb') as f:
                     f.write(content.encode('utf8'))
                     f.close()
 
@@ -121,7 +121,7 @@ class Migrator(object):
             return
         try:
             self.client.commit(
-                b(message), user=b(author), addremove=True
+                message, user=author.encode('utf-8'), addremove=True
             )
         except hglib.error.CommandError as err:
             print('    WARNING: hg commit failed ({})'.format(err))
