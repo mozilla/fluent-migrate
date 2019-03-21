@@ -56,7 +56,7 @@ class TestProperties(MockContext):
         self.strings = parse(PropertiesParser, '''
             foo = Foo
             value-empty =
-            value-whitespace =    
+            value-whitespace =    \n\
 
             unicode-all = \\u0020
             unicode-start = \\u0020Foo
