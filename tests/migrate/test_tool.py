@@ -44,7 +44,7 @@ class TestSerialize(unittest.TestCase):
         # Walk our serialized localization dir, but
         # make the directory be relative to our root.
         walked = sorted(
-            (os.path.relpath(dir, self.root), dirs, files)
+            (os.path.relpath(dir, self.root), sorted(dirs), sorted(files))
             for dir, dirs, files in os.walk(self.root)
         )
         self.assertEqual(
