@@ -376,8 +376,9 @@ class TestMissingLocalizationStrings(unittest.TestCase):
                 id=FTL.Identifier('title'),
                 value=CONCAT(
                     FTL.SelectExpression(
-                        selector=FTL.CallExpression(
-                            callee=FTL.Identifier('PLATFORM')
+                        selector=FTL.FunctionReference(
+                            id=FTL.Identifier('PLATFORM'),
+                            arguments=FTL.CallArguments(),
                         ),
                         variants=[
                             FTL.Variant(
@@ -405,8 +406,9 @@ class TestMissingLocalizationStrings(unittest.TestCase):
                 id=FTL.Identifier('title'),
                 value=CONCAT(
                     FTL.SelectExpression(
-                        selector=FTL.CallExpression(
-                            callee=FTL.Identifier('PLATFORM')
+                        selector=FTL.FunctionReference(
+                            id=FTL.Identifier('PLATFORM'),
+                            arguments=FTL.CallArguments(),
                         ),
                         variants=[
                             FTL.Variant(
@@ -442,8 +444,9 @@ class TestMissingLocalizationStrings(unittest.TestCase):
                 id=FTL.Identifier('title'),
                 value=CONCAT(
                     FTL.SelectExpression(
-                        selector=FTL.CallExpression(
-                            callee=FTL.Identifier('PLATFORM')
+                        selector=FTL.FunctionReference(
+                            id=FTL.Identifier('PLATFORM'),
+                            arguments=FTL.CallArguments(),
                         ),
                         variants=[
                             FTL.Variant(

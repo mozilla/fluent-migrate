@@ -25,10 +25,20 @@ def VARIABLE_REFERENCE(name):
 
 
 def MESSAGE_REFERENCE(name):
-    """Create a MessageReference expression."""
+    """Create a MessageReference expression.
+
+    If the passed name contains a `.`, we're generating
+    a message reference with an attribute.
+    """
+    if '.' in name:
+        name, attribute = name.split('.')
+        attribute = FTL.Identifier(attribute)
+    else:
+        attribute = None
 
     return FTL.MessageReference(
-        id=FTL.Identifier(name)
+        id=FTL.Identifier(name),
+        attribute=attribute,
     )
 
 
@@ -53,8 +63,8 @@ class IntoTranforms(FTL.Transformer):
             "Transform contains parse error: {}, at {}".format(
                 anno.message, anno.span.start))
 
-    def visit_CallExpression(self, node):
-        name = node.callee.id.name
+    def visit_FunctionReference(self, node):
+        name = node.id.name
         if name in self.IMPLICIT_TRANSFORMS:
             raise NotSupportedError(
                 "{} may not be used with transforms_from(). It runs "
@@ -64,10 +74,12 @@ class IntoTranforms(FTL.Transformer):
                 "{} may not be used with transforms_from(). It requires "
                 "additional logic in Python code.".format(name))
         if name == 'COPY':
-            args = (self.into_argument(arg) for arg in node.positional)
+            args = (
+                self.into_argument(arg) for arg in node.arguments.positional
+            )
             kwargs = {
                 arg.name.name: self.into_argument(arg.value)
-                for arg in node.named}
+                for arg in node.arguments.named}
             return COPY(*args, **kwargs)
         return self.generic_visit(node)
 

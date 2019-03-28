@@ -7,7 +7,7 @@ import six
 from six.moves import zip_longest
 
 import fluent.syntax.ast as FTL
-from fluent.migrate.helpers import transforms_from
+from fluent.migrate.helpers import transforms_from, MESSAGE_REFERENCE
 from fluent.migrate.transforms import CONCAT, COPY
 from fluent.migrate.errors import NotSupportedError, InvalidTransformError
 
@@ -119,10 +119,9 @@ new-key = Prefix { PLATFORM() ->
                     FTL.TextElement("Prefix "),
                     FTL.Placeable(
                         FTL.SelectExpression(
-                            selector=FTL.CallExpression(
-                                callee=FTL.FunctionReference(
-                                    id=FTL.Identifier("PLATFORM")
-                                )
+                            selector=FTL.FunctionReference(
+                                id=FTL.Identifier('PLATFORM'),
+                                arguments=FTL.CallArguments(),
                             ),
                             variants=[
                                 FTL.Variant(
@@ -226,10 +225,9 @@ new-key =
                 value=CONCAT(
                     FTL.Placeable(
                         FTL.SelectExpression(
-                            selector=FTL.CallExpression(
-                                callee=FTL.FunctionReference(
-                                    id=FTL.Identifier("PLATFORM")
-                                )
+                            selector=FTL.FunctionReference(
+                                id=FTL.Identifier('PLATFORM'),
+                                arguments=FTL.CallArguments(),
                             ),
                             variants=[
                                 FTL.Variant(
@@ -313,7 +311,6 @@ new-key = {" "}postfix.
                 value=CONCAT(
                     FTL.Placeable(
                         FTL.StringLiteral(
-                            raw=" ",
                             value=" "
                         )
                     ),
@@ -321,3 +318,25 @@ new-key = {" "}postfix.
                 )
             )
         ])
+
+
+class TestMessageReference(unittest.TestCase):
+    def test_no_attribute(self):
+        self.assertTrue(
+            MESSAGE_REFERENCE('foo').equals(
+                FTL.MessageReference(
+                    id=FTL.Identifier('foo'),
+                    attribute=None,
+                )
+            )
+        )
+
+    def test_with_attribute(self):
+        self.assertTrue(
+            MESSAGE_REFERENCE('foo.bar').equals(
+                FTL.MessageReference(
+                    id=FTL.Identifier('foo'),
+                    attribute=FTL.Identifier('bar'),
+                )
+            )
+        )

@@ -90,7 +90,7 @@ class TestPatternOf(unittest.TestCase):
             FTL.TextElement("word"),
             FTL.TextElement(" "),
             FTL.TextElement("of"),
-            FTL.StringLiteral(" ", " "),
+            FTL.StringLiteral(" "),
             FTL.TextElement("mouth")
         )
         self.assertEqual(
@@ -101,7 +101,7 @@ class TestPatternOf(unittest.TestCase):
     def test_inner_literal(self):
         pattern = Transform.pattern_of(
             FTL.TextElement("apples"),
-            FTL.StringLiteral("\\u002B", "+"),
+            FTL.StringLiteral("\\u002B"),
             FTL.TextElement("oranges")
         )
         self.assertEqual(

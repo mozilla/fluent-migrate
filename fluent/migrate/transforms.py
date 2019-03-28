@@ -121,7 +121,7 @@ def extract_whitespace(regex, element):
         # If white-space is None, we're a newline. Add an
         # empty { "" }
         whitespace = match.group('whitespace') or ''
-        placeable = FTL.Placeable(FTL.StringLiteral(whitespace, whitespace))
+        placeable = FTL.Placeable(FTL.StringLiteral(whitespace))
         if whitespace == element.value:
             return placeable, None
         else:
@@ -152,8 +152,8 @@ class Transform(FTL.BaseNode):
                 text_content = element.value
             elif isinstance(element, FTL.Placeable) \
                     and isinstance(element.expression, FTL.StringLiteral) \
-                    and re.match(r'^ *$', element.expression.raw):
-                text_content = element.expression.raw
+                    and re.match(r'^ *$', element.expression.value):
+                text_content = element.expression.value
             else:
                 # The element does not contain text content which should be
                 # normalized. It may be a number, a reference, or
@@ -174,7 +174,7 @@ class Transform(FTL.BaseNode):
 
         # Store empty values explicitly as {""}.
         if len(normalized) == 0:
-            empty = FTL.Placeable(FTL.StringLiteral('', ''))
+            empty = FTL.Placeable(FTL.StringLiteral(''))
             return FTL.Pattern([empty])
 
         # Extract explicit leading whitespace into a StringLiteral.
