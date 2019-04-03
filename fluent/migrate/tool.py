@@ -134,6 +134,8 @@ def main(lang, reference_dir, localization_dir, migrations, dry_run):
     for migration in migrations:
         migrator.run(migration)
 
+    migrator.close()
+
 
 def cli():
     parser = argparse.ArgumentParser(
