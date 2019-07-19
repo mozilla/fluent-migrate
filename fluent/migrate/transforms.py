@@ -197,10 +197,12 @@ class Transform(FTL.BaseNode):
 class Source(Transform):
     """Base class for Transforms that get translations from source files.
 
-    The contract is that the first argument is the source path.
+    The contract is that the first argument is the source path, and the
+    second is a key representing legacy string IDs, or Fluent id.attr.
     """
-    def __init__(self, path):
+    def __init__(self, path, key):
         self.path = path
+        self.key = key
 
 
 class FluentSource(Source):
@@ -219,8 +221,7 @@ class FluentSource(Source):
                 'Cannot migrate from Term Attributes, as they are'
                 'locale-dependent ({})'.format(path)
             )
-        super(FluentSource, self).__init__(path)
-        self.key = key
+        super(FluentSource, self).__init__(path, key)
 
     def __call__(self, ctx):
         pattern = ctx.get_fluent_source_pattern(self.path, self.key)
@@ -260,8 +261,7 @@ class LegacySource(Source):
                 'Please use COPY_PATTERN to migrate from Fluent files '
                 '({})'.format(path))
 
-        super(LegacySource, self).__init__(path)
-        self.key = key
+        super(LegacySource, self).__init__(path, key)
         self.trim = trim
 
     def get_text(self, ctx):

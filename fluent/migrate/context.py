@@ -15,7 +15,7 @@ from fluent.migrate.util import fold
 from compare_locales.parser import getParser
 from compare_locales.plurals import CATEGORIES_BY_LOCALE
 
-from .transforms import Source, COPY_PATTERN
+from .transforms import Source
 from .merge import merge_resource
 from .util import get_message
 from .errors import (
@@ -193,8 +193,6 @@ class MergeContext(object):
         """
         def get_sources(acc, cur):
             if isinstance(cur, Source):
-                acc.add((cur.path, cur.key))
-            if isinstance(cur, COPY_PATTERN):
                 acc.add((cur.path, cur.key))
             return acc
 
