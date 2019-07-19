@@ -13,7 +13,7 @@ from fluent.migrate.transforms import COPY
 
 
 class MockContext(unittest.TestCase):
-    def get_source(self, path, key):
+    def get_legacy_source(self, path, key):
         # Ignore path (test.properties) and get translations from
         # self.ab_cd_legacy defined in setUp.
         translation = self.ab_cd_legacy.get(key, None)

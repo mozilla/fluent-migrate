@@ -60,6 +60,44 @@ joe = second
             }
         )
 
+    def test_fluent(self):
+        blame = MockedBlame('''\
+jane = first
+    .joe = second
+''')
+        blame.handleFile({
+            "abspath": "file.ftl",
+            "path": "file.ftl",
+            "lines": [
+                {
+                    "date": [10000.0, 0],
+                    "user": "Jane Doe <jane@example.tld>",
+                    "line": "jane = first\n"
+                },
+                {
+                    "date": [11000.0, 0],
+                    "user": "Joe Doe <joe@example.tld>",
+                    "line": "    .joe = second\n"
+                }
+            ]
+        })
+        self.assertEqual(
+            blame.users,
+            [
+                "Jane Doe <jane@example.tld>",
+                "Joe Doe <joe@example.tld>",
+            ]
+        )
+        self.assertEqual(
+            blame.blame,
+            {
+                "file.ftl": {
+                    "jane": [0, 10000.0],
+                    "jane.joe": [1, 11000.0]
+                }
+            }
+        )
+
 
 class TestIntegration(unittest.TestCase):
     def setUp(self):

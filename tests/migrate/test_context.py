@@ -9,7 +9,9 @@ import unittest
 
 import fluent.syntax.ast as FTL
 from fluent.migrate.errors import (
-    EmptyLocalizationError, NotSupportedError, UnreadableReferenceError)
+    EmptyLocalizationError,
+    UnreadableReferenceError,
+)
 from fluent.migrate.util import ftl, ftl_resource_to_json, to_json
 from fluent.migrate.context import MergeContext
 from fluent.migrate.transforms import CONCAT, COPY
@@ -253,6 +255,11 @@ class TestMergeContext(unittest.TestCase):
         for changeset in changesets:
             serialized = self.ctx.serialize_changeset(changeset)
             self.assertEqual(serialized, next(expected))
+
+    def test_fluent_source(self):
+        self.ctx.maybe_add_localization('existing.ftl')
+        bar = self.ctx.get_fluent_source_pattern('existing.ftl', 'bar')
+        self.assertIsInstance(bar, FTL.Pattern)
 
 
 class TestIncompleteReference(unittest.TestCase):
@@ -680,19 +687,6 @@ class TestExistingTarget(unittest.TestCase):
             to_json(self.ctx.merge_changeset()),
             {}
         )
-
-
-class TestNotSupportedError(unittest.TestCase):
-    def test_add_ftl(self):
-        pattern = ('Migrating translations from Fluent files is not supported')
-        with six.assertRaisesRegex(self, NotSupportedError, pattern):
-            ctx = MergeContext(
-                lang='pl',
-                reference_dir=here('fixtures/en-US'),
-                localization_dir=here('fixtures/pl')
-            )
-
-            ctx.maybe_add_localization('privacy.ftl')
 
 
 class TestMessagesEqual(unittest.TestCase):
