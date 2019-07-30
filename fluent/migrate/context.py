@@ -70,6 +70,7 @@ class MergeContext(object):
         # Parsed input resources stored by resource path.
         self.reference_resources = {}
         self.localization_resources = {}
+        self.target_resources = {}
 
         # An iterable of `FTL.Message` objects some of whose nodes can be the
         # transform operations.
@@ -239,9 +240,9 @@ class MergeContext(object):
         path_transforms = self.transforms.setdefault(target, [])
         path_transforms += transforms
 
-        if target not in self.localization_resources:
+        if target not in self.target_resources:
             target_ast = self.read_localization_ftl(target)
-            self.localization_resources[target] = target_ast
+            self.target_resources[target] = target_ast
 
     def get_legacy_source(self, path, key):
         """Get an entity value from a localized legacy source.
@@ -332,7 +333,7 @@ class MergeContext(object):
             known_translations = changeset
 
         for path, reference in self.reference_resources.items():
-            current = self.localization_resources[path]
+            current = self.target_resources[path]
             transforms = self.transforms.get(path, [])
             in_changeset = partial(
                 self.in_changeset, changeset, known_translations, path)
@@ -355,7 +356,7 @@ class MergeContext(object):
 
             # Store the merged snapshot on the context so that the next merge
             # already takes it into account as the existing localization.
-            self.localization_resources[path] = snapshot
+            self.target_resources[path] = snapshot
 
             # The result for this path is a complete `FTL.Resource`.
             yield path, snapshot
