@@ -20,7 +20,8 @@ setup(
     packages=['fluent', 'fluent.migrate'],
     entry_points={
         'console_scripts': [
-            'migrate-l10n=fluent.migrate.tool:cli'
+            'migrate-l10n=fluent.migrate.tool:cli',
+            'validate-l10n-recipe=fluent.migrate.validator:cli'
         ]
     },
     install_requires=[
@@ -28,6 +29,9 @@ setup(
         'fluent.syntax >=0.14.0, <0.16',
         'python-hglib',
         'six',
+    ],
+    tests_require=[
+        'mock',
     ],
     test_suite='tests.migrate'
 )
