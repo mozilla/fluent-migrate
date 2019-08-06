@@ -246,7 +246,8 @@ class MigrateAnalyzer(ast.NodeVisitor):
             return
         bad_args = '{} takes path and key as first two params'.format(called)
         if not self.check_arguments(
-            node, ((ast.Str, ast.Name), (ast.Str, ast.Name),), allow_more=True
+            node, ((ast.Str, ast.Name), (ast.Str, ast.Name),),
+            allow_more=True, check_kwargs=False
         ):
             self.issues.append({
                 'msg': bad_args,
