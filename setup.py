@@ -25,8 +25,8 @@ setup(
         ]
     },
     install_requires=[
-        'compare-locales >=7.0, <7.3',
-        'fluent.syntax >=0.14.0, <0.16',
+        'compare-locales >=7.3, <7.4',
+        'fluent.syntax >=0.17.0, <0.18',
         'python-hglib',
         'six',
     ],

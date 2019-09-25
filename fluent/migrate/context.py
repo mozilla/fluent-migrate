@@ -13,7 +13,7 @@ from fluent.syntax.parser import FluentParser
 from fluent.syntax.serializer import FluentSerializer
 from fluent.migrate.util import fold
 from compare_locales.parser import getParser
-from compare_locales.plurals import CATEGORIES_BY_LOCALE
+from compare_locales.plurals import get_plural
 
 from .transforms import Source
 from .merge import merge_resource
@@ -54,13 +54,12 @@ class MergeContext(object):
 
         # An iterable of plural category names relevant to the context's
         # language.  E.g. ('one', 'other') for English.
-        try:
-            self.plural_categories = CATEGORIES_BY_LOCALE[lang]
-        except KeyError as locale_key:
+        self.plural_categories = get_plural(lang)
+        if self.plural_categories is None:
             logger = logging.getLogger('migrate')
             logger.warning(
                 'Plural rule for "{}" is not defined in '
-                'compare-locales'.format(locale_key))
+                'compare-locales'.format(lang))
             self.plural_categories = ('one', 'other')
 
         # Paths to directories with input data, relative to CWD.
