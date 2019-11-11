@@ -17,7 +17,7 @@ from compare_locales.plurals import get_plural
 
 from .transforms import Source
 from .merge import merge_resource
-from .util import get_message
+from .util import get_message, skeleton
 from .errors import (
     EmptyLocalizationError,
     UnreadableReferenceError,
@@ -33,7 +33,9 @@ class MergeContext(object):
     The transformation takes four types of input data:
 
         - The en-US FTL reference files which will be used as templates for
-          message order, comments and sections.
+          message order, comments and sections. If the reference_dir is None,
+          the migration will create Messages and Terms in the order given by
+          the transforms.
 
         - The current FTL files for the given language.
 
@@ -196,7 +198,17 @@ class MergeContext(object):
                 acc.add((cur.path, cur.key))
             return acc
 
-        reference_ast = self.read_reference_ftl(reference)
+        if self.reference_dir is None:
+            # Add skeletons to resource body for each transform
+            # if there's no reference.
+            reference_ast = self.reference_resources.get(target)
+            if reference_ast is None:
+                reference_ast = FTL.Resource()
+            reference_ast.body.extend(
+                skeleton(transform) for transform in transforms
+            )
+        else:
+            reference_ast = self.read_reference_ftl(reference)
         self.reference_resources[target] = reference_ast
 
         for node in transforms:
@@ -209,6 +221,9 @@ class MergeContext(object):
 
             # The target Fluent message should exist in the reference file. If
             # it doesn't, it's probably a typo.
+            # Of course, only if we're having a reference.
+            if self.reference_dir is None:
+                continue
             if get_message(reference_ast.body, ident) is None:
                 logger = logging.getLogger('migrate')
                 logger.warning(

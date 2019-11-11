@@ -5,7 +5,7 @@ from __future__ import absolute_import
 import unittest
 
 import fluent.syntax.ast as FTL
-from fluent.migrate.util import fold
+from fluent.migrate.util import fold, ftl_resource_to_ast, skeleton
 from fluent.migrate.transforms import CONCAT, COPY, REPLACE, Source
 
 
@@ -99,3 +99,26 @@ class TestReduce(unittest.TestCase):
             fold(get_source, node, ()),
             (('path2', 'key2'), ('path1', 'key1'))
         )
+
+
+class TestSkeleton(unittest.TestCase):
+    def test_skeleton(self):
+        resource = ftl_resource_to_ast('''
+        # License comment
+
+        ### resource comment
+
+        just-val = something
+        val-and-attr = else
+            .with = an attribute
+        -term = always
+        ''')
+        new_skeleton = [skeleton(node) for node in resource.body]
+        for orig, new in zip(resource.body, new_skeleton):
+            self.assertNotEqual(orig, new)
+            if isinstance(new, (FTL.Message, FTL.Term)):
+                self.assertFalse(orig.equals(new))
+                self.assertIsNone(new.value)
+                self.assertListEqual(new.attributes, [])
+            else:
+                self.assertTrue(orig.equals(new))

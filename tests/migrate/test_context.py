@@ -51,6 +51,35 @@ class TestMergeContext_AddTransforms(unittest.TestCase):
             )
         )
 
+    def test_no_reference(self):
+        self.ctx.reference_dir = None
+        self.ctx.add_transforms('aboutDownloads.ftl', 'aboutDownloads.ftl', [
+            FTL.Message(
+                id=FTL.Identifier('title'),
+                value=COPY(
+                    'aboutDownloads.dtd',
+                    'aboutDownloads.title'
+                )
+            ),
+        ])
+        ref_ast = self.ctx.reference_resources.get('aboutDownloads.ftl')
+        self.assertIsNotNone(ref_ast)
+        self.assertEqual(len(ref_ast.body), 1)
+        self.ctx.add_transforms('aboutDownloads.ftl', 'aboutDownloads.ftl', [
+            FTL.Message(
+                id=FTL.Identifier('header'),
+                value=COPY(
+                    'aboutDownloads.dtd',
+                    'aboutDownloads.header'
+                )
+            ),
+        ])
+        self.assertEqual(
+            id(self.ctx.reference_resources.get('aboutDownloads.ftl')),
+            id(ref_ast)
+        )
+        self.assertEqual(len(ref_ast.body), 2)
+
 
 class TestMergeContext(unittest.TestCase):
     def setUp(self):
