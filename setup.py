@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='fluent.migrate',
-    version='0.6.4',
+    version='0.7.0',
     description='Toolchain to migrate legacy translation to Fluent.',
     author='Mozilla',
     author_email='l10n-drivers@mozilla.org',
@@ -16,14 +16,9 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.7',
     ],
     packages=['fluent', 'fluent.migrate'],
-    entry_points={
-        'console_scripts': [
-            'migrate-l10n=fluent.migrate.tool:cli',
-            'validate-l10n-recipe=fluent.migrate.validator:cli'
-        ]
-    },
     install_requires=[
         'compare-locales >=7.3, <7.5',
         'fluent.syntax >=0.17.0, <0.18',

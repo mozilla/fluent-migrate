@@ -2,3 +2,5 @@
 \.pyc$
 ^.eggs$
 ^fluent.migrate.egg-info$
+^build
+^dist

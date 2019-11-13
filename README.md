@@ -1,15 +1,22 @@
-L10n Migration Tools
-====================
+Fluent Migration Tools
+======================
 
-`migrate-l10n.py` is a CLI script which uses the `fluent.migrate` module under
+Programmatically create Fluent files from existing content in both legacy
+and Fluent formats. Use recipes written in Python to migrate content for each
+of your localizations.
+
+`migrate-l10n` is a CLI script which uses the `fluent.migrate` module under
 the hood to run migrations on existing translations.
+
+`validate-l10n-recipe` is a CLI script to test a migration recipe for common
+errors, without trying to apply it.
 
 Installation
 ------------
 
-The tool is best installed by installing the package. As we haven't published the tool on pypi yet, the best way to do so is to run the following command in a virtualenv from your local clone:
+Install from PyPI:
 
-    pip install .
+    pip install fluent.migrate
 
 Usage
 -----
@@ -29,5 +36,4 @@ Contact
 -------
 
  - mailing list: https://lists.mozilla.org/listinfo/tools-l10n
- - IRC channel: [irc://irc.mozilla.org/l20n](irc://irc.mozilla.org/l20n)
  - bugzilla: [Open Bugs](https://bugzilla.mozilla.org/buglist.cgi?component=Fluent%20Migration&product=Localization%20Infrastructure%20and%20Tools&bug_status=__open__) - [New Bug](https://bugzilla.mozilla.org/enter_bug.cgi?product=Localization%20Infrastructure%20and%20Tools&component=Fluent%20Migration)
