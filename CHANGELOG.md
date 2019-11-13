@@ -1,5 +1,9 @@
 # Changelog
 
+## fluent.syntax 0.7.1 (November 13, 2019)
+
+  - Make dependency on `python-hglib` optional.
+
 ## fluent.syntax 0.7.0 (November 13, 2019)
 
   - `MigrationContext` is a public API now.

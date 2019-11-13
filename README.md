@@ -16,6 +16,11 @@ Installation
 
 Install from PyPI:
 
+    pip install fluent.migrate[hg]
+
+If you only want to use the `MigrationContext` API, you can drop the
+requirement on `python-hglib`:
+
     pip install fluent.migrate
 
 Usage
