@@ -13,7 +13,7 @@ from fluent.migrate.errors import (
     UnreadableReferenceError,
 )
 from fluent.migrate.util import ftl, ftl_resource_to_json, to_json
-from fluent.migrate.context import MergeContext
+from fluent.migrate.context import MigrationContext
 from fluent.migrate.transforms import CONCAT, COPY
 
 
@@ -22,9 +22,9 @@ def here(*parts):
     return os.path.join(dirname, *parts)
 
 
-class TestMergeContext_AddTransforms(unittest.TestCase):
+class TestMigrationContext_AddTransforms(unittest.TestCase):
     def setUp(self):
-        self.ctx = MergeContext(
+        self.ctx = MigrationContext(
             lang='pl',
             reference_dir=here('fixtures/en-US'),
             localization_dir=here('fixtures/pl')
@@ -81,9 +81,9 @@ class TestMergeContext_AddTransforms(unittest.TestCase):
         self.assertEqual(len(ref_ast.body), 2)
 
 
-class TestMergeContext(unittest.TestCase):
+class TestMigrationContext(unittest.TestCase):
     def setUp(self):
-        self.ctx = MergeContext(
+        self.ctx = MigrationContext(
             lang='pl',
             reference_dir=here('fixtures/en-US'),
             localization_dir=here('fixtures/pl')
@@ -296,7 +296,7 @@ class TestIncompleteReference(unittest.TestCase):
         # Silence all logging.
         logging.disable(logging.CRITICAL)
 
-        self.ctx = MergeContext(
+        self.ctx = MigrationContext(
             lang='pl',
             reference_dir=here('fixtures/en-US'),
             localization_dir=here('fixtures/pl')
@@ -316,7 +316,7 @@ class TestMissingLocalizationFiles(unittest.TestCase):
         # Silence all logging.
         logging.disable(logging.CRITICAL)
 
-        self.ctx = MergeContext(
+        self.ctx = MigrationContext(
             lang='pl',
             reference_dir=here('fixtures/en-US'),
             localization_dir=here('fixtures/pl')
@@ -380,7 +380,7 @@ class TestMissingLocalizationStrings(unittest.TestCase):
         # Silence all logging.
         logging.disable(logging.CRITICAL)
 
-        self.ctx = MergeContext(
+        self.ctx = MigrationContext(
             lang='pl',
             reference_dir=here('fixtures/en-US'),
             localization_dir=here('fixtures/pl')
@@ -597,7 +597,7 @@ class TestExistingTarget(unittest.TestCase):
         # Silence all logging.
         logging.disable(logging.CRITICAL)
 
-        self.ctx = MergeContext(
+        self.ctx = MigrationContext(
             lang='pl',
             reference_dir=here('fixtures/en-US'),
             localization_dir=here('fixtures/pl')
@@ -725,7 +725,7 @@ class TestMessagesEqual(unittest.TestCase):
         # Silence all logging.
         logging.disable(logging.CRITICAL)
 
-        self.ctx = MergeContext(
+        self.ctx = MigrationContext(
             lang='pl',
             reference_dir=here('fixtures/en-US'),
             localization_dir=here('fixtures/pl')

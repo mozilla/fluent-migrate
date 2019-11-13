@@ -7,7 +7,7 @@ import unittest
 
 import fluent.syntax.ast as FTL
 from fluent.migrate.util import ftl_resource_to_json, to_json
-from fluent.migrate.context import MergeContext
+from fluent.migrate.context import MigrationContext
 from fluent.migrate.helpers import VARIABLE_REFERENCE, MESSAGE_REFERENCE
 from fluent.migrate.transforms import (
     CONCAT, COPY, PLURALS, REPLACE_IN_TEXT, REPLACE
@@ -21,7 +21,7 @@ def here(*parts):
 
 class TestMergeAboutDownloads(unittest.TestCase):
     def setUp(self):
-        self.ctx = MergeContext(
+        self.ctx = MigrationContext(
             lang='pl',
             reference_dir=here('fixtures/en-US'),
             localization_dir=here('fixtures/pl')
@@ -277,7 +277,7 @@ class TestMergeAboutDialog(unittest.TestCase):
     maxDiff = None
 
     def setUp(self):
-        self.ctx = MergeContext(
+        self.ctx = MigrationContext(
             lang='pl',
             reference_dir=here('fixtures/en-US'),
             localization_dir=here('fixtures/pl')

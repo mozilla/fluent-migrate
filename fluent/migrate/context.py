@@ -13,20 +13,20 @@ from .errors import (
     EmptyLocalizationError,
     UnreadableReferenceError,
 )
-from ._context import MergeContextInternal
+from ._context import InternalContext
 
 
 __all__ = [
     'EmptyLocalizationError',
     'UnreadableReferenceError',
-    'MergeContext',
+    'MigrationContext',
 ]
 
 
-class MergeContext(MergeContextInternal):
+class MigrationContext(InternalContext):
     """Stateful context for merging translation resources.
 
-    `MergeContext` must be configured with the target language and the
+    `MigrationContext` must be configured with the target language and the
     directory locations of the input data.
 
     The transformation takes four types of input data:
@@ -52,7 +52,7 @@ class MergeContext(MergeContextInternal):
     """
 
     def __init__(self, lang, reference_dir, localization_dir):
-        super(MergeContext, self).__init__(
+        super(MigrationContext, self).__init__(
             lang, reference_dir, localization_dir
         )
 

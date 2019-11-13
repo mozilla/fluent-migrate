@@ -20,10 +20,10 @@ from .errors import (
 )
 
 
-class MergeContextInternal(object):
+class InternalContext(object):
     """Internal context for merging translation resources.
 
-    For the public interface, see `context.MergeContext`.
+    For the public interface, see `context.MigrationContext`.
     """
 
     def __init__(self, lang, reference_dir, localization_dir):

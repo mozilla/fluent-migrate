@@ -10,7 +10,7 @@ import sys
 import hglib
 import six
 
-from fluent.migrate.context import MergeContext
+from fluent.migrate.context import MigrationContext
 from fluent.migrate.errors import MigrationError
 from fluent.migrate.changesets import convert_blame_to_changesets
 from fluent.migrate.blame import Blame
@@ -48,7 +48,7 @@ class Migrator(object):
             migration.__name__, self.language))
 
         # For each migration create a new context.
-        ctx = MergeContext(
+        ctx = MigrationContext(
             self.language, self.reference_dir, self.localization_dir
         )
 

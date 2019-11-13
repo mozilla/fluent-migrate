@@ -3,7 +3,7 @@
 
 Transforms are AST nodes which describe how legacy translations should be
 migrated.  They are created inert and only return the migrated AST nodes when
-they are evaluated by a MergeContext.
+they are evaluated by a MigrationContext.
 
 All Transforms evaluate to Fluent Patterns. This makes them suitable for
 defining migrations of values of message, attributes and variants.  The special
@@ -13,7 +13,7 @@ elements: TextElements and Placeables.
 
 The COPY, REPLACE and PLURALS Transforms inherit from Source which is a special
 AST Node defining the location (the file path and the id) of the legacy
-translation.  During the migration, the current MergeContext scans the
+translation.  During the migration, the current MigrationContext scans the
 migration spec for Source nodes and extracts the information about all legacy
 translations being migrated. For instance,
 
