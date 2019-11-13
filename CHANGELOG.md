@@ -1,5 +1,16 @@
 # Changelog
 
+## fluent.syntax 0.7.0 (November 13, 2019)
+
+  - `MigrationContext` is a public API now.
+  - Split off `InternalContext` for non-public functionality and
+  internal APIs.
+  - Support `migrate-l10n` w/out `--reference-dir` to create vanilla
+  Fluent files from migration recipes.
+  - First release to upload to PyPI.
+
+This is just an excerpt of the [full changelog](https://hg.mozilla.org/l10n/fluent-migration/changelog?rev=0.6.4::0.7.0&revcount=80).
+
 ## fluent 0.6.4 (March 1, 2018)
 
   - use compare-locales for plurals ordering ([bug 1415844](https://bugzilla.mozilla.org/show_bug.cgi?id=1415844))
@@ -76,7 +87,7 @@ Various fixes to `fluent.migrate` for [bug 1424682][].
   - Bug 1321290 - Migrate HTML entities to Unicode characters (#28)
   - Bug 1420225 - Read legacy files when scanning for Sources in transforms (#30)
 
-    MergeContext.maybe_add_localization is now automaatically called
+    MergeContext.maybe_add_localization is now automatically called
     interally when the context encounters a transforms which is a subclass of
     Source.
 
