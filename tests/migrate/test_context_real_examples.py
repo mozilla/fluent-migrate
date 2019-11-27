@@ -22,7 +22,7 @@ def here(*parts):
 class TestMergeAboutDownloads(unittest.TestCase):
     def setUp(self):
         self.ctx = MigrationContext(
-            lang='pl',
+            locale='pl',
             reference_dir=here('fixtures/en-US'),
             localization_dir=here('fixtures/pl')
         )
@@ -278,7 +278,7 @@ class TestMergeAboutDialog(unittest.TestCase):
 
     def setUp(self):
         self.ctx = MigrationContext(
-            lang='pl',
+            locale='pl',
             reference_dir=here('fixtures/en-US'),
             localization_dir=here('fixtures/pl')
         )

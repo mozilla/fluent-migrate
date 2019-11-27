@@ -26,7 +26,7 @@ __all__ = [
 class MigrationContext(InternalContext):
     """Stateful context for merging translation resources.
 
-    `MigrationContext` must be configured with the target language and the
+    `MigrationContext` must be configured with the target locale and the
     directory locations of the input data.
 
     The transformation takes four types of input data:
@@ -36,7 +36,7 @@ class MigrationContext(InternalContext):
           the migration will create Messages and Terms in the order given by
           the transforms.
 
-        - The current FTL files for the given language.
+        - The current FTL files for the given locale.
 
         - A list of `FTL.Message` or `FTL.Term` objects some of whose nodes
           are special helper or transform nodes:
@@ -51,11 +51,11 @@ class MigrationContext(InternalContext):
     into the existing FTL files for the given language.
     """
 
-    def __init__(self, lang, reference_dir, localization_dir):
+    def __init__(self, locale, reference_dir, localization_dir):
         super(MigrationContext, self).__init__(
-            lang, reference_dir, localization_dir
+            locale, reference_dir, localization_dir
         )
-
+        self.locale = locale
         # Paths to directories with input data, relative to CWD.
         self.reference_dir = reference_dir
         self.localization_dir = localization_dir

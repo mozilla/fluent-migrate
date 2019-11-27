@@ -25,7 +25,7 @@ def here(*parts):
 class TestMigrationContext_AddTransforms(unittest.TestCase):
     def setUp(self):
         self.ctx = MigrationContext(
-            lang='pl',
+            locale='pl',
             reference_dir=here('fixtures/en-US'),
             localization_dir=here('fixtures/pl')
         )
@@ -84,7 +84,7 @@ class TestMigrationContext_AddTransforms(unittest.TestCase):
 class TestMigrationContext(unittest.TestCase):
     def setUp(self):
         self.ctx = MigrationContext(
-            lang='pl',
+            locale='pl',
             reference_dir=here('fixtures/en-US'),
             localization_dir=here('fixtures/pl')
         )
@@ -297,7 +297,7 @@ class TestIncompleteReference(unittest.TestCase):
         logging.disable(logging.CRITICAL)
 
         self.ctx = MigrationContext(
-            lang='pl',
+            locale='pl',
             reference_dir=here('fixtures/en-US'),
             localization_dir=here('fixtures/pl')
         )
@@ -317,7 +317,7 @@ class TestMissingLocalizationFiles(unittest.TestCase):
         logging.disable(logging.CRITICAL)
 
         self.ctx = MigrationContext(
-            lang='pl',
+            locale='pl',
             reference_dir=here('fixtures/en-US'),
             localization_dir=here('fixtures/pl')
         )
@@ -381,7 +381,7 @@ class TestMissingLocalizationStrings(unittest.TestCase):
         logging.disable(logging.CRITICAL)
 
         self.ctx = MigrationContext(
-            lang='pl',
+            locale='pl',
             reference_dir=here('fixtures/en-US'),
             localization_dir=here('fixtures/pl')
         )
@@ -598,7 +598,7 @@ class TestExistingTarget(unittest.TestCase):
         logging.disable(logging.CRITICAL)
 
         self.ctx = MigrationContext(
-            lang='pl',
+            locale='pl',
             reference_dir=here('fixtures/en-US'),
             localization_dir=here('fixtures/pl')
         )
@@ -726,7 +726,7 @@ class TestMessagesEqual(unittest.TestCase):
         logging.disable(logging.CRITICAL)
 
         self.ctx = MigrationContext(
-            lang='pl',
+            locale='pl',
             reference_dir=here('fixtures/en-US'),
             localization_dir=here('fixtures/pl')
         )

@@ -303,14 +303,16 @@ class TestMigrateAnalyzer_add_transforms(unittest.TestCase):
         self.assertSetEqual(v.targets, {'some/fluent.ftl'})
         v.targets.clear()
 
-    def test_bad_paths(self):
+    def test_different_paths(self):
+        # We have different paths for reference and target when
+        # we migrate to multi-locale repositories, at least.
         v = validator.MigrateAnalyzer('foo', {})
         call = ast.parse(
             'foo.add_transforms("a.ftl", "b.ftl", [])'
         ).body[0].value
         v.call_add_transforms(call)
-        self.assertEqual(len(v.issues), 1)
-        self.assertSetEqual(v.targets, set())
+        self.assertEqual(len(v.issues), 0)
+        self.assertSetEqual(v.targets, {'a.ftl'})
         v.issues[:] = []
 
 

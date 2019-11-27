@@ -21,6 +21,20 @@ class BadContextAPIException(Exception):
     pass
 
 
+def process_assign(node, context):
+    if isinstance(node.value, ast.Str):
+        val = node.value.s
+    elif isinstance(node.value, ast.Name):
+        val = context.get(node.value.id)
+    elif isinstance(node.value, ast.Call):
+        val = node.value
+    if val is None:
+        return
+    for target in node.targets:
+        if isinstance(target, ast.Name):
+            context[target.id] = val
+
+
 class Validator(object):
     """Validate a migration recipe
 
@@ -55,16 +69,7 @@ class Validator(object):
                 migrate_func = top_level
                 details = self.inspect_migrate(migrate_func, global_assigns)
             if isinstance(top_level, ast.Assign):
-                val = None
-                if isinstance(top_level.value, ast.Str):
-                    val = top_level.value.s
-                elif isinstance(top_level.value, ast.Name):
-                    val = global_assigns.get(top_level.value.id)
-                if val is None:
-                    continue
-                for target in top_level.targets:
-                    if isinstance(target, ast.Name):
-                        global_assigns[target.id] = val
+                process_assign(top_level, global_assigns)
             if isinstance(top_level, (ast.Import, ast.ImportFrom)):
                 if 'module' in top_level._fields:
                     module = top_level.module
@@ -118,6 +123,9 @@ def full_name(node, global_assigns):
     return '.'.join(reversed(leafs))
 
 
+PATH_TYPES = six.string_types + (ast.Call,)
+
+
 class MigrateAnalyzer(ast.NodeVisitor):
     def __init__(self, ctx_var, global_assigns):
         super(MigrateAnalyzer, self).__init__()
@@ -133,11 +141,16 @@ class MigrateAnalyzer(ast.NodeVisitor):
         super(MigrateAnalyzer, self).generic_visit(node)
         self.depth -= 1
 
+    def visit_Assign(self, node):
+        if self.depth == 1:
+            process_assign(node, self.global_assigns)
+        self.generic_visit(node)
+
     def visit_Attribute(self, node):
         if isinstance(node.value, ast.Name) and node.value.id == self.ctx_var:
             if node.attr not in (
-                'maybe_add_localization',
                 'add_transforms',
+                'locale',
             ):
                 raise BadContextAPIException(
                     'Unexpected attribute access on {}.{}'.format(
@@ -189,7 +202,7 @@ class MigrateAnalyzer(ast.NodeVisitor):
             path = path.s
         if isinstance(path, ast.Name):
             path = self.global_assigns.get(path.id)
-        if not isinstance(path, six.string_types):
+        if not isinstance(path, PATH_TYPES):
             self.issues.append({
                 'msg': args_msg,
                 'line': node.args[0].lineno
@@ -209,7 +222,7 @@ class MigrateAnalyzer(ast.NodeVisitor):
     def call_add_transforms(self, node):
         args_msg = (
             'Expected arguments to {}.add_transforms: '
-            'path, path, list'
+            'target_ftl_path, reference_ftl_path, list_of_transforms'
         ).format(self.ctx_var)
         if not self.check_arguments(
             node,
@@ -225,9 +238,8 @@ class MigrateAnalyzer(ast.NodeVisitor):
             for n in node.args[:2]
         ]
         if (
-            isinstance(in_target, six.string_types) and
-            isinstance(in_reference, six.string_types) and
-            in_target == in_reference
+            isinstance(in_target, PATH_TYPES) and
+            isinstance(in_reference, PATH_TYPES)
         ):
             self.targets.add(in_target)
         else:
@@ -259,7 +271,7 @@ class MigrateAnalyzer(ast.NodeVisitor):
             path = path.s
         if isinstance(path, ast.Name):
             path = self.global_assigns.get(path.id)
-        if not isinstance(path, six.string_types):
+        if not isinstance(path, PATH_TYPES):
             self.issues.append({
                 'msg': bad_args,
                 'line': node.lineno
@@ -288,7 +300,9 @@ class MigrateAnalyzer(ast.NodeVisitor):
                 v = v.s
             if isinstance(v, ast.Name):
                 v = self.global_assigns.get(v.id)
-            if not isinstance(v, six.string_types):
+            if isinstance(v, ast.Call):
+                v = 'determined at runtime'
+            if not isinstance(v, PATH_TYPES):
                 msg = 'Bad keyword arg {} to transforms_from'.format(
                     keyword.arg
                 )
