@@ -77,7 +77,6 @@ class TestValidator_inspect_migrate(unittest.TestCase):
             v.inspect_migrate(v.ast.body[0], {})
 
     def test_ctx_var(self, Analyzer):
-        Analyzer.return_value.sources = set()
         Analyzer.return_value.references = []
         Analyzer.return_value.issues = []
         v = validator.Validator('def migrate(ctx):\n pass', 'bug_1.py')
@@ -85,7 +84,7 @@ class TestValidator_inspect_migrate(unittest.TestCase):
         Analyzer.return_value.visit.assert_called_with(v.ast.body[0])
         self.assertDictEqual(
             rv,
-            {'sources': set(), 'issues': [], 'references': []}
+            {'issues': [], 'references': []}
         )
 
 
@@ -270,7 +269,6 @@ VARIABLE_REFERENCE("foo")
 ''').body[1].value
         self.assertIsInstance(call, ast.Call)
         self.assertIsNone(v.call_transform(call, dotted))
-        self.assertSetEqual(v.sources, set())
         self.assertListEqual(v.issues, [])
 
     def test_not_source(self):
@@ -284,7 +282,6 @@ CONCAT("foo")
 ''').body[1].value
         self.assertIsInstance(call, ast.Call)
         self.assertIsNone(v.call_transform(call, dotted))
-        self.assertSetEqual(v.sources, set())
         self.assertListEqual(v.issues, [])
 
     def test_source(self):
@@ -299,7 +296,6 @@ COPY("foo")
 ''').body[1].value
         self.assertIsInstance(call, ast.Call)
         self.assertIsNone(v.call_transform(call, dotted))
-        self.assertSetEqual(v.sources, set())
         self.assertEqual(len(v.issues), 1)
         v.issues[:] = []
         call = ast.parse('''\
@@ -308,7 +304,6 @@ COPY(some, bad, args)
 ''').body[1].value
         self.assertIsInstance(call, ast.Call)
         self.assertIsNone(v.call_transform(call, dotted))
-        self.assertSetEqual(v.sources, set())
         self.assertEqual(len(v.issues), 1)
         v.issues[:] = []
         call = ast.parse('''\
@@ -317,9 +312,7 @@ COPY("my/fine.dtd", "foo")
 ''').body[1].value
         self.assertIsInstance(call, ast.Call)
         self.assertIsNone(v.call_transform(call, dotted))
-        self.assertSetEqual(v.sources, {'my/fine.dtd'})
         self.assertListEqual(v.issues, [])
-        v.sources.clear()
         call = ast.parse('''\
 from fluent.migrate.transforms import COPY
 src = "my/fine.dtd"
@@ -327,9 +320,7 @@ COPY(src, "foo")
 ''').body[2].value
         self.assertIsInstance(call, ast.Call)
         self.assertIsNone(v.call_transform(call, dotted))
-        self.assertSetEqual(v.sources, {'my/fine.dtd'})
         self.assertListEqual(v.issues, [])
-        v.sources.clear()
 
 
 class TestMigrateAnalyzer_call_helpers_transform_from(unittest.TestCase):
@@ -346,7 +337,6 @@ transforms_from(code)
 ''').body[1].value
         self.assertIsInstance(call, ast.Call)
         self.assertIsNone(v.call_helpers_transforms_from(call))
-        self.assertSetEqual(v.sources, set())
         self.assertEqual(len(v.issues), 1)
 
     def test_parse_error(self):
@@ -362,7 +352,6 @@ k3 = {COPY(src, "other_key)}
 ''').body[1].value
         self.assertIsInstance(call, ast.Call)
         self.assertIsNone(v.call_helpers_transforms_from(call))
-        self.assertSetEqual(v.sources, set())
         self.assertEqual(len(v.issues), 1)
         v.issues[:] = []
 
@@ -379,7 +368,6 @@ k3 = {COPY(one_src, "key")}
 ''').body[1].value
         self.assertIsInstance(call, ast.Call)
         self.assertIsNone(v.call_helpers_transforms_from(call))
-        self.assertSetEqual(v.sources, set())
         self.assertEqual(len(v.issues), 1)
         v.issues[:] = []
 
@@ -400,7 +388,6 @@ k3 = {COPY(two_src, "other_key")}
 ''').body[2].value
         self.assertIsInstance(call, ast.Call)
         self.assertIsNone(v.call_helpers_transforms_from(call))
-        self.assertSetEqual(v.sources, {'one.dtd', 'other.dtd'})
         self.assertListEqual(v.issues, [])
 
 
@@ -458,7 +445,6 @@ class TestTransformsInspector(unittest.TestCase):
         ti = validator.TransformsInspector()
         ti.visit(node)
         self.assertListEqual(ti.issues, [])
-        self.assertSetEqual(ti.sources, {'foo/bar.dtd'})
 
     def test_copy_with_issue(self):
         node = COPY('./foo/bar.dtd', 'key1')
@@ -467,14 +453,12 @@ class TestTransformsInspector(unittest.TestCase):
         self.assertListEqual(ti.issues, [
             'Source "./foo/bar.dtd" needs to be a normalized path'
         ])
-        self.assertSetEqual(ti.sources, set())
 
     def test_good_copy_pattern(self):
         node = COPY_PATTERN('foo/bar.ftl', 'key1')
         ti = validator.TransformsInspector()
         ti.visit(node)
         self.assertListEqual(ti.issues, [])
-        self.assertSetEqual(ti.sources, {'foo/bar.ftl'})
 
     def test_copy_pattern_with_issue(self):
         node = COPY_PATTERN('./foo/bar.ftl', 'key1')
@@ -483,4 +467,3 @@ class TestTransformsInspector(unittest.TestCase):
         self.assertListEqual(ti.issues, [
             'Source "./foo/bar.ftl" needs to be a normalized path'
         ])
-        self.assertSetEqual(ti.sources, set())

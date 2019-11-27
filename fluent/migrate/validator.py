@@ -107,7 +107,6 @@ class Validator(object):
         visitor = MigrateAnalyzer(ctx_var, global_assigns)
         visitor.visit(migrate_func)
         return {
-            'sources': visitor.sources,
             'references': visitor.references,
             'issues': visitor.issues,
         }
@@ -134,7 +133,6 @@ class MigrateAnalyzer(ast.NodeVisitor):
         self.depth = 0
         self.issues = []
         self.references = set()
-        self.sources = set()
 
     def generic_visit(self, node):
         self.depth += 1
@@ -243,8 +241,6 @@ class MigrateAnalyzer(ast.NodeVisitor):
                 'msg': bad_args,
                 'line': node.lineno
             })
-            return
-        self.sources.add(path)
 
     def call_helpers_transforms_from(self, node):
         args_msg = (
@@ -296,7 +292,6 @@ class MigrateAnalyzer(ast.NodeVisitor):
             'msg': issue,
             'line': node.lineno,
         } for issue in set(ti.issues))
-        self.sources.update(ti.sources)
 
     def check_arguments(
         self, node, argspec, check_kwargs=True, allow_more=False
@@ -319,7 +314,6 @@ class MigrateAnalyzer(ast.NodeVisitor):
 class TransformsInspector(FTL.Visitor):
     def __init__(self):
         super(TransformsInspector, self).__init__()
-        self.sources = set()
         self.issues = []
 
     def generic_visit(self, node):
@@ -331,8 +325,6 @@ class TransformsInspector(FTL.Visitor):
                 self.issues.append(
                     'Source "{}" needs to be a normalized path'.format(src)
                 )
-            else:
-                self.sources.add(src)
         super(TransformsInspector, self).generic_visit(node)
 
 
