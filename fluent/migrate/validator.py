@@ -174,8 +174,6 @@ class MigrateAnalyzer(ast.NodeVisitor):
         self.generic_visit(node)
 
     def call_ctx(self, node):
-        if node.func.attr == 'maybe_add_localization':
-            return self.call_maybe_add_localization(node)
         if node.func.attr == 'add_transforms':
             return self.call_add_transforms(node)
         raise BadContextAPIException(
@@ -183,41 +181,6 @@ class MigrateAnalyzer(ast.NodeVisitor):
                 self.ctx_var, node.func.attr
             )
         )
-
-    def call_maybe_add_localization(self, node):
-        self.issues.append({
-            'msg': (
-                'Calling {}.maybe_add_localization is not required'
-            ).format(self.ctx_var),
-            'line': node.lineno
-        })
-        args_msg = (
-            'Expected arguments to {}.maybe_add_localization: '
-            'str'
-        ).format(self.ctx_var)
-        if not self.check_arguments(node, ((ast.Str, ast.Name),)):
-            raise BadContextAPIException(args_msg)
-        path = node.args[0]
-        if isinstance(path, ast.Str):
-            path = path.s
-        if isinstance(path, ast.Name):
-            path = self.global_assigns.get(path.id)
-        if not isinstance(path, PATH_TYPES):
-            self.issues.append({
-                'msg': args_msg,
-                'line': node.args[0].lineno
-            })
-            return
-        if path != mozpath.normpath(path):
-            self.issues.append({
-                'msg': (
-                    'Argument to {}.maybe_add_localization needs to be a '
-                    'normalized path: "{}"'
-                ).format(self.ctx_var, path),
-                'line': node.args[0].lineno
-            })
-        else:
-            self.sources.add(path)
 
     def call_add_transforms(self, node):
         args_msg = (

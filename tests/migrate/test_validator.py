@@ -167,96 +167,38 @@ class TestMigrateAnalyzer_Call(unittest.TestCase):
 
 @mock.patch.multiple(
     validator.MigrateAnalyzer,
-    call_maybe_add_localization=mock.DEFAULT,
     call_add_transforms=mock.DEFAULT,
 )
 class TestMigrateAnalyzer_ctx(unittest.TestCase):
     def test_bad_api(
-        self, call_maybe_add_localization, call_add_transforms
+        self, call_add_transforms
     ):
         call = ast.parse('foo.bar()').body[0].value
         self.assertIsInstance(call, ast.Call)
         v = validator.MigrateAnalyzer('foo', {})
         with self.assertRaises(validator.BadContextAPIException):
-            v.call_ctx(call)
-        call_maybe_add_localization.assert_not_called()
+            v.visit_Call(call)
         call_add_transforms.assert_not_called()
         m = ast.parse('foo.bar.baz')
         v = validator.MigrateAnalyzer('foo', {})
         with self.assertRaises(validator.BadContextAPIException):
             v.visit(m)
-        call_maybe_add_localization.assert_not_called()
+        call_add_transforms.assert_not_called()
+        call = ast.parse('foo.maybe_add_localization()').body[0].value
+        self.assertIsInstance(call, ast.Call)
+        v = validator.MigrateAnalyzer('foo', {})
+        with self.assertRaises(validator.BadContextAPIException):
+            v.visit_Call(call)
         call_add_transforms.assert_not_called()
 
     def test_add_transforms(
-        self, call_maybe_add_localization, call_add_transforms
+        self, call_add_transforms
     ):
         call = ast.parse('foo.add_transforms()').body[0].value
         self.assertIsInstance(call, ast.Call)
         v = validator.MigrateAnalyzer('foo', {})
-        v.call_ctx(call)
-        call_maybe_add_localization.assert_not_called()
+        v.visit_Call(call)
         call_add_transforms.assert_called_once()
-
-    def test_maybe_add_localization(
-        self, call_maybe_add_localization, call_add_transforms
-    ):
-        call = ast.parse('foo.maybe_add_localization()').body[0].value
-        self.assertIsInstance(call, ast.Call)
-        v = validator.MigrateAnalyzer('foo', {})
-        v.call_ctx(call)
-        call_maybe_add_localization.assert_called_once()
-        call_add_transforms.assert_not_called()
-
-
-class TestMigrateAnalyzer_maybe_add_localization(unittest.TestCase):
-    def test_bad_args(self):
-        v = validator.MigrateAnalyzer('foo', {})
-        call = ast.parse('foo.maybe_add_localization()').body[0].value
-        with self.assertRaises(validator.BadContextAPIException):
-            v.call_maybe_add_localization(call)
-
-    def test_good_path(self):
-        v = validator.MigrateAnalyzer('foo', {
-            'src': 'other.dtd',
-        })
-        call = ast.parse(
-            'foo.maybe_add_localization("good.dtd")'
-        ).body[0].value
-        v.call_maybe_add_localization(call)
-        self.assertSetEqual(v.sources, {'good.dtd'})
-        # deprecation notice
-        self.assertEqual(len(v.issues), 1)
-        v.sources.clear()
-        v.issues[:] = []
-        call = ast.parse(
-            'foo.maybe_add_localization(src)'
-        ).body[0].value
-        v.call_maybe_add_localization(call)
-        self.assertSetEqual(v.sources, {'other.dtd'})
-        # deprecation notice
-        self.assertEqual(len(v.issues), 1)
-        v.sources.clear()
-        v.issues[:] = []
-
-    def test_bad_path(self):
-        v = validator.MigrateAnalyzer('foo', {})
-        call = ast.parse(
-            'foo.maybe_add_localization("./good.dtd")'
-        ).body[0].value
-        v.call_maybe_add_localization(call)
-        self.assertSetEqual(v.sources, set())
-        # deprecation notice and bad path
-        self.assertEqual(len(v.issues), 2)
-        v.issues[:] = []
-        call = ast.parse(
-            'foo.maybe_add_localization(src)'
-        ).body[0].value
-        v.call_maybe_add_localization(call)
-        self.assertSetEqual(v.sources, set())
-        # deprecation notice and bad path
-        self.assertEqual(len(v.issues), 2)
-        v.issues[:] = []
 
 
 class TestMigrateAnalyzer_add_transforms(unittest.TestCase):
