@@ -78,7 +78,7 @@ class TestValidator_inspect_migrate(unittest.TestCase):
 
     def test_ctx_var(self, Analyzer):
         Analyzer.return_value.sources = set()
-        Analyzer.return_value.targets = []
+        Analyzer.return_value.references = []
         Analyzer.return_value.issues = []
         v = validator.Validator('def migrate(ctx):\n pass', 'bug_1.py')
         rv = v.inspect_migrate(v.ast.body[0], {})
@@ -221,29 +221,29 @@ class TestMigrateAnalyzer_add_transforms(unittest.TestCase):
         call = ast.parse('foo.add_transforms(src, target, [])').body[0].value
         v.call_add_transforms(call)
         self.assertListEqual(v.issues, [])
-        self.assertSetEqual(v.targets, {'some/fluent.ftl'})
-        v.targets.clear()
+        self.assertSetEqual(v.references, {'some/fluent.ftl'})
+        v.references.clear()
         call = ast.parse(
             'foo.add_transforms("some/fluent.ftl", target, [])'
         ).body[0].value
         v.call_add_transforms(call)
         self.assertListEqual(v.issues, [])
-        self.assertSetEqual(v.targets, {'some/fluent.ftl'})
-        v.targets.clear()
+        self.assertSetEqual(v.references, {'some/fluent.ftl'})
+        v.references.clear()
         call = ast.parse(
             'foo.add_transforms(src, "some/fluent.ftl", [])'
         ).body[0].value
         v.call_add_transforms(call)
         self.assertListEqual(v.issues, [])
-        self.assertSetEqual(v.targets, {'some/fluent.ftl'})
-        v.targets.clear()
+        self.assertSetEqual(v.references, {'some/fluent.ftl'})
+        v.references.clear()
         call = ast.parse(
             'foo.add_transforms("some/fluent.ftl", "some/fluent.ftl", [])'
         ).body[0].value
         v.call_add_transforms(call)
         self.assertListEqual(v.issues, [])
-        self.assertSetEqual(v.targets, {'some/fluent.ftl'})
-        v.targets.clear()
+        self.assertSetEqual(v.references, {'some/fluent.ftl'})
+        v.references.clear()
 
     def test_different_paths(self):
         # We have different paths for reference and target when
@@ -254,7 +254,7 @@ class TestMigrateAnalyzer_add_transforms(unittest.TestCase):
         ).body[0].value
         v.call_add_transforms(call)
         self.assertEqual(len(v.issues), 0)
-        self.assertSetEqual(v.targets, {'a.ftl'})
+        self.assertSetEqual(v.references, {'b.ftl'})
         v.issues[:] = []
 
 

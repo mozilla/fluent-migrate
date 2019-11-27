@@ -108,7 +108,7 @@ class Validator(object):
         visitor.visit(migrate_func)
         return {
             'sources': visitor.sources,
-            'references': visitor.targets,
+            'references': visitor.references,
             'issues': visitor.issues,
         }
 
@@ -133,7 +133,7 @@ class MigrateAnalyzer(ast.NodeVisitor):
         self.global_assigns = global_assigns
         self.depth = 0
         self.issues = []
-        self.targets = set()
+        self.references = set()
         self.sources = set()
 
     def generic_visit(self, node):
@@ -187,30 +187,34 @@ class MigrateAnalyzer(ast.NodeVisitor):
             'Expected arguments to {}.add_transforms: '
             'target_ftl_path, reference_ftl_path, list_of_transforms'
         ).format(self.ctx_var)
-        if not self.check_arguments(
-            node,
-            ((ast.Str, ast.Name), (ast.Str, ast.Name), (ast.List, ast.Call))
-        ):
+        ref_msg = (
+            'Expected second argument to {}.add_transforms: '
+            'reference should be string or variable with string value'
+        ).format(self.ctx_var)
+        # Just check call signature here, check actual types below
+        if not self.check_arguments(node, (ast.AST, ast.AST, ast.AST)):
             self.issues.append({
                 'msg': args_msg,
                 'line': node.lineno,
             })
             return
-        in_target, in_reference = [
-            n.s if isinstance(n, ast.Str) else self.global_assigns.get(n.id)
-            for n in node.args[:2]
-        ]
-        if (
-            isinstance(in_target, PATH_TYPES) and
-            isinstance(in_reference, PATH_TYPES)
-        ):
-            self.targets.add(in_target)
-        else:
+        in_reference = node.args[1]
+        if isinstance(in_reference, ast.Name):
+            in_reference = self.global_assigns.get(in_reference.id)
+        if isinstance(in_reference, ast.Str):
+            in_reference = in_reference.s
+        if not isinstance(in_reference, six.string_types):
             self.issues.append({
-                'msg': args_msg,
-                'line': node.lineno,
+                'msg': ref_msg,
+                'line': node.args[1].lineno,
             })
-        self.generic_visit(node)
+            return
+        self.references.add(in_reference)
+        # Checked node.args[1].
+        # There's not a lot we can say about our target path,
+        # ignoring that.
+        # For our transforms, we want more checks.
+        self.generic_visit(node.args[2])
 
     def call_transform(self, node, dotted):
         module, called = dotted.rsplit('.', 1)
