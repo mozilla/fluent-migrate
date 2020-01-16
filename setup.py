@@ -20,7 +20,7 @@ setup(
     ],
     packages=['fluent', 'fluent.migrate'],
     install_requires=[
-        'compare-locales >=7.3, <7.5',
+        'compare-locales >=7.3, <7.6',
         'fluent.syntax >=0.17.0, <0.18',
         'six',
     ],
