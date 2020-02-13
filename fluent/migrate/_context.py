@@ -83,7 +83,9 @@ class InternalContext(object):
         parser = getParser(path)
         parser.readFile(path)
         # Transform the parsed result which is an iterator into a dict.
-        return {entity.key: entity.val for entity in parser}
+        return {
+            entity.key: entity.val for entity in parser if entity.localized
+        }
 
     def read_reference_ftl(self, path):
         """Read and parse a reference FTL file.

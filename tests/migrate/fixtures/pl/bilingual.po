@@ -1,0 +1,5 @@
+msgid "untranslated"
+msgstr ""
+
+msgid "translated"
+msgstr "foopy"

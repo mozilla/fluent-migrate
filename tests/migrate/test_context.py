@@ -290,6 +290,45 @@ class TestMigrationContext(unittest.TestCase):
         bar = self.ctx.get_fluent_source_pattern('existing.ftl', 'bar')
         self.assertIsInstance(bar, FTL.Pattern)
 
+    def test_bilingual_translated(self):
+        self.ctx.add_transforms('bilingual.ftl', 'bilingual.ftl', [
+            FTL.Message(
+                id=FTL.Identifier('two'),
+                value=COPY(
+                    'bilingual.po',
+                    ('translated', None)
+                )
+            ),
+        ])
+        expected = {
+            'bilingual.ftl': ftl_resource_to_json('''
+            # License
+
+            # This was translated
+            two = foopy
+            ''')
+        }
+        self.assertDictEqual(
+            to_json(self.ctx.merge_changeset(None)),
+            expected
+        )
+
+    def test_bilingual_untranslated(self):
+        self.ctx.add_transforms('bilingual.ftl', 'bilingual.ftl', [
+            FTL.Message(
+                id=FTL.Identifier('one'),
+                value=COPY(
+                    'bilingual.po',
+                    ('untranslated', None)
+                )
+            ),
+        ])
+        expected = {}
+        self.assertDictEqual(
+            to_json(self.ctx.merge_changeset(None)),
+            expected
+        )
+
 
 class TestIncompleteReference(unittest.TestCase):
     def setUp(self):
