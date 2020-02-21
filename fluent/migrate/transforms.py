@@ -238,6 +238,35 @@ class COPY_PATTERN(FluentSource):
     pass
 
 
+class TransformPattern(FluentSource, FTL.Transformer):
+    """Base class for modifying a Fluent pattern as part of a migration.
+
+    Implement visit_* methods of the Transformer pattern to do the
+    actual modifications.
+    """
+    def __call__(self, ctx):
+        pattern = super(TransformPattern, self).__call__(ctx)
+        return self.visit(pattern)
+
+    def visit_Pattern(self, node):
+        # Make sure we're creating valid Patterns after restructuring
+        # transforms.
+        node = self.generic_visit(node)
+        pattern = Transform.pattern_of(*node.elements)
+        return pattern
+
+    def visit_Placeable(self, node):
+        # Ensure we have a Placeable with an expression still.
+        # Transforms could have replaced the expression with
+        # a Pattern or PatternElement, in which case we
+        # just pass that through.
+        # Patterns then get flattened by visit_Pattern.
+        node = self.generic_visit(node)
+        if isinstance(node.expression, (FTL.Pattern, FTL.PatternElement)):
+            return node.expression
+        return node
+
+
 class LegacySource(Source):
     """Declare the source translation to be migrated with other transforms.
 
