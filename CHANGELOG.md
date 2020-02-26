@@ -1,5 +1,9 @@
 # Changelog
 
+## fluent.migrate 0.8.1 (February 26, 2020)
+
+  - Follow up to bilingual files, let migration code enforce serializing non-localized content.
+
 ## fluent.migrate 0.8 (February 26, 2020)
 
   - Support multi-locale repositories as targets.
