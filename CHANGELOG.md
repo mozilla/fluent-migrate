@@ -1,6 +1,13 @@
 # Changelog
 
-## fluent.syntax 0.7.1 (November 13, 2019)
+## fluent.migrate 0.8 (February 26, 2020)
+
+  - Support multi-locale repositories as targets.
+  - Better recipe validation.
+  - When migrating from bilingual files, check that messages are translated.
+  - Base class `transforms.TransformPattern` to modify Fluent patterns during migrations.
+
+## fluent.migrate 0.7.1 (November 13, 2019)
 
   - Make dependency on `python-hglib` optional.
 
