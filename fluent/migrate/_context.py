@@ -26,7 +26,9 @@ class InternalContext(object):
     For the public interface, see `context.MigrationContext`.
     """
 
-    def __init__(self, lang, reference_dir, localization_dir):
+    def __init__(
+        self, lang, reference_dir, localization_dir, enforce_translated=False
+    ):
         self.fluent_parser = FluentParser(with_spans=False)
         self.fluent_serializer = FluentSerializer()
 
@@ -40,6 +42,7 @@ class InternalContext(object):
                 'compare-locales'.format(lang))
             self.plural_categories = ('one', 'other')
 
+        self.enforce_translated = enforce_translated
         # Parsed input resources stored by resource path.
         self.reference_resources = {}
         self.localization_resources = {}
@@ -84,7 +87,8 @@ class InternalContext(object):
         parser.readFile(path)
         # Transform the parsed result which is an iterator into a dict.
         return {
-            entity.key: entity.val for entity in parser if entity.localized
+            entity.key: entity.val for entity in parser
+            if entity.localized or self.enforce_translated
         }
 
     def read_reference_ftl(self, path):

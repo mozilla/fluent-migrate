@@ -51,9 +51,12 @@ class MigrationContext(InternalContext):
     into the existing FTL files for the given language.
     """
 
-    def __init__(self, locale, reference_dir, localization_dir):
+    def __init__(
+        self, locale, reference_dir, localization_dir, enforce_translated=False
+    ):
         super(MigrationContext, self).__init__(
-            locale, reference_dir, localization_dir
+            locale, reference_dir, localization_dir,
+            enforce_translated=enforce_translated
         )
         self.locale = locale
         # Paths to directories with input data, relative to CWD.

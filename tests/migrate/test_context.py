@@ -329,6 +329,30 @@ class TestMigrationContext(unittest.TestCase):
             expected
         )
 
+    def test_bilingual_enforce_translated(self):
+        self.ctx.enforce_translated = True
+        self.ctx.add_transforms('bilingual.ftl', 'bilingual.ftl', [
+            FTL.Message(
+                id=FTL.Identifier('one'),
+                value=COPY(
+                    'bilingual.po',
+                    ('untranslated', None)
+                )
+            ),
+        ])
+        expected = {
+            'bilingual.ftl': ftl_resource_to_json('''
+            # License
+
+            # This was untranslated
+            one = {""}
+            ''')
+        }
+        self.assertDictEqual(
+            to_json(self.ctx.merge_changeset(None)),
+            expected
+        )
+
 
 class TestIncompleteReference(unittest.TestCase):
     def setUp(self):
