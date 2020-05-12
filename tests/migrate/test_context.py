@@ -345,7 +345,7 @@ class TestMigrationContext(unittest.TestCase):
             # License
 
             # This was untranslated
-            one = {""}
+            one = untranslated
             ''')
         }
         self.assertDictEqual(
