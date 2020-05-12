@@ -282,9 +282,12 @@ class LegacySource(Source):
     https://github.com/python/cpython/blob/2.7/Lib/htmlentitydefs.py
     https://github.com/python/cpython/blob/3.6/Lib/html/entities.py
 
+    By default, leading and trailing whitespace on each line as well as
+    leading and trailing empty lines will be stripped from the source
+    translation's content. Set `trim=False` to disable this behavior.
     """
 
-    def __init__(self, path, key, trim=False):
+    def __init__(self, path, key, trim=None):
         if path.endswith('.ftl'):
             raise NotSupportedError(
                 'Please use COPY_PATTERN to migrate from Fluent files '
@@ -298,9 +301,9 @@ class LegacySource(Source):
 
     @staticmethod
     def trim_text(text):
-        # strip leading white-space
+        # strip leading white-space from each line
         text = re.sub('^[ \t]+', '', text, flags=re.M)
-        # strip trailing white-space
+        # strip trailing white-space from each line
         text = re.sub('[ \t]+$', '', text, flags=re.M)
         # strip leading and trailing empty lines
         text = text.strip('\r\n')
@@ -308,7 +311,7 @@ class LegacySource(Source):
 
     def __call__(self, ctx):
         text = self.get_text(ctx)
-        if self.trim:
+        if self.trim is not False:
             text = self.trim_text(text)
         return FTL.TextElement(text)
 
@@ -525,7 +528,38 @@ class PLURALS(LegacySource):
 
 
 class CONCAT(Transform):
-    """Create a new Pattern from Patterns, PatternElements and Expressions."""
+    """Create a new Pattern from Patterns, PatternElements and Expressions.
+
+    When called with at least two elements, `CONCAT` disables the trimming
+    behavior of the elements which are subclasses of `LegacySource` by
+    setting `trim=False`, unless `trim` has already been set explicitly. The
+    following two `CONCAT` calls are equivalent:
+
+       CONCAT(
+           FTL.TextElement("Hello"),
+           COPY("file.properties", "hello")
+       )
+
+       CONCAT(
+           FTL.TextElement("Hello"),
+           COPY("file.properties", "hello", trim=False)
+       )
+
+    Set `trim=True` explicitly to force trimming:
+
+       CONCAT(
+           FTL.TextElement("Hello "),
+           COPY("file.properties", "hello", trim=True)
+       )
+
+    When called with a single element and when the element is a subclass of
+    `LegacySource`, the trimming behavior is not changed. The following two
+    transforms are equivalent:
+
+       CONCAT(COPY("file.properties", "hello"))
+
+       COPY("file.properties", "hello")
+    """
 
     def __init__(self, *elements, **kwargs):
         # We want to support both passing elements as *elements in the
@@ -533,6 +567,15 @@ class CONCAT(Transform):
         # FTL.BaseNode.traverse when it recreates the traversed node using its
         # attributes as kwargs.
         self.elements = list(kwargs.get('elements', elements))
+
+        # We want to make CONCAT(COPY()) equivalent to COPY() so that it's
+        # always safe (no-op) to wrap transforms in a CONCAT. This is used by
+        # the implementation of transforms_from.
+        if len(self.elements) > 1:
+            for elem in self.elements:
+                # Only change trim if it hasn't been set explicitly.
+                if isinstance(elem, LegacySource) and elem.trim is None:
+                    elem.trim = False
 
     def __call__(self, ctx):
         return Transform.pattern_of(*self.elements)

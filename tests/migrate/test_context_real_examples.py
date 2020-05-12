@@ -297,9 +297,7 @@ class TestMergeAboutDialog(unittest.TestCase):
             FTL.Message(
                 id=FTL.Identifier('channel-desc'),
                 value=CONCAT(
-                    COPY(
-                        'aboutDialog.dtd', 'channel.description.start'
-                    ),
+                    COPY('aboutDialog.dtd', 'channel.description.start'),
                     VARIABLE_REFERENCE('channelname'),
                     COPY('aboutDialog.dtd', 'channel.description.end'),
                 )

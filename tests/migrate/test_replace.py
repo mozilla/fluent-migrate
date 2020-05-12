@@ -32,6 +32,16 @@ class TestReplace(MockContext):
             interleaved = #1 #2 #1 #2
         ''')
 
+    def test_trim(self):
+        transform = REPLACE('test.properties', 'foo', {})
+        self.assertEqual(transform.trim, None)
+
+        transform = REPLACE('test.properties', 'foo', {}, trim=True)
+        self.assertEqual(transform.trim, True)
+
+        transform = REPLACE('test.properties', 'foo', {}, trim=False)
+        self.assertEqual(transform.trim, False)
+
     def test_replace_empty(self):
         transform = REPLACE(
             'test.properties',

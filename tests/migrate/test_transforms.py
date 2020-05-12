@@ -67,6 +67,15 @@ class TestPatternOf(unittest.TestCase):
             ftl_pattern_to_json('{""}')
         )
 
+    def test_empty_text(self):
+        pattern = Transform.pattern_of(
+            FTL.TextElement("")
+        )
+        self.assertEqual(
+            pattern.to_json(),
+            ftl_pattern_to_json('{""}')
+        )
+
     def test_leading_white(self):
         pattern = Transform.pattern_of(
             FTL.TextElement("  word")
@@ -83,6 +92,16 @@ class TestPatternOf(unittest.TestCase):
         self.assertEqual(
             pattern.to_json(),
             ftl_pattern_to_json('word{"  "}')
+        )
+
+    def test_leading_trailing(self):
+        pattern = Transform.pattern_of(
+            FTL.TextElement(" foo "),
+            FTL.TextElement(" bar ")
+        )
+        self.assertEqual(
+            pattern.to_json(),
+            ftl_pattern_to_json('{" "}foo  bar{" "}')
         )
 
     def test_adjoin(self):
@@ -107,4 +126,55 @@ class TestPatternOf(unittest.TestCase):
         self.assertEqual(
             pattern.to_json(),
             ftl_pattern_to_json('apples{ "\\u002B" }oranges')
+        )
+
+    def test_multiline_inside(self):
+        pattern = Transform.pattern_of(
+            FTL.TextElement("foo\nbar\n\nbaz"),
+        )
+        self.assertEqual(
+            pattern.to_json(),
+            ftl_pattern_to_json('foo\n bar\n\n baz')
+        )
+
+    def test_multiline_outside(self):
+        pattern = Transform.pattern_of(
+            FTL.TextElement("\nfoo\nbar\n\n"),
+        )
+        self.assertEqual(
+            pattern.to_json(),
+            ftl_pattern_to_json('{""}\n foo\n bar\n\n {""}')
+        )
+
+    def test_multiline_outside_explicit(self):
+        pattern = Transform.pattern_of(
+            FTL.TextElement(" \nfoo\n "),
+        )
+        self.assertEqual(
+            pattern.to_json(),
+            ftl_pattern_to_json('{" "}\n foo\n {" "}')
+        )
+
+    @unittest.skip("pattern_of isn't capable of representing this")
+    def test_multiline_indented_one_line(self):
+        Transform.pattern_of(
+            FTL.TextElement("\n  foo"),
+        )
+
+        # Option A.
+        # key = {""}
+        #     {"  "}foo
+
+        # Option B.
+        # key =
+        #     {""}
+        #       foo
+
+    def test_multiline_indented_two_lines(self):
+        pattern = Transform.pattern_of(
+            FTL.TextElement("\n  foo\nbar"),
+        )
+        self.assertEqual(
+            pattern.to_json(),
+            ftl_pattern_to_json('{""}\n    foo\n  bar')
         )

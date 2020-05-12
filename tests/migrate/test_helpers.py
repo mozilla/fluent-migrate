@@ -27,7 +27,9 @@ Parsed transforms do not match the expected transforms.
 {}
 """         .format(
                 [msg.to_json() for msg in parsed],
-                [msg.to_json() for msg in expected]))
+                [msg.to_json() for msg in expected]
+            )
+        )
 
     def test_text_element(self):
         parsed = transforms_from("""
@@ -196,7 +198,21 @@ new-key = { COPY("path", "key") }
             )
         ])
 
-    def test_trim_copy_in_value(self):
+    def test_trim_false(self):
+        parsed = transforms_from("""
+new-key = { COPY("path", "key", trim: "False") }
+""")
+
+        self.assert_transforms_equal(parsed, [
+            FTL.Message(
+                id=FTL.Identifier("new-key"),
+                value=CONCAT(
+                    COPY("path", "key", trim=False)
+                )
+            )
+        ])
+
+    def test_trim_true(self):
         parsed = transforms_from("""
 new-key = { COPY("path", "key", trim: "True") }
 """)
