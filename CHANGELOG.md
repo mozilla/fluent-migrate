@@ -1,5 +1,15 @@
 # Changelog
 
+## fluent.migrate 0.9 (May 13, 2020)
+
+*Breaking Changes*
+
+  - [Bug 1616056](https://bugzilla.mozilla.org/show_bug.cgi?id=1616056) - trim by default for `LegacySource` transforms, but not inside `CONCAT`.
+
+Other Changes:
+
+  - [Bug 1626976](https://bugzilla.mozilla.org/show_bug.cgi?id=1626976) - transforms can raise `fluent.migrate.errors.SkipTransform` to not transform a string, even if it exists in a localization.
+
 ## fluent.migrate 0.8.1 (February 26, 2020)
 
   - Follow up to bilingual files, let migration code enforce serializing non-localized content.
