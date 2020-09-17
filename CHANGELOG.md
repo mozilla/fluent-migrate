@@ -1,5 +1,10 @@
 # Changelog
 
+## fluent.migrate 0.10 (September 18, 2020)
+
+  - Update to fluent.syntax 0.18.
+  - Update to compare-locales 0.8.1.
+
 ## fluent.migrate 0.9 (May 13, 2020)
 
 *Breaking Changes*
