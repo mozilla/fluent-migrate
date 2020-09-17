@@ -66,18 +66,31 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 import re
 
-import fluent.syntax.ast as FTL
+from fluent.syntax import ast as FTL
+from fluent.syntax.visitor import Transformer
 from .errors import NotSupportedError
 
 
-def evaluate(ctx, node):
-    def eval_node(subnode):
-        if isinstance(subnode, Transform):
-            return subnode(ctx)
-        else:
-            return subnode
+class Evaluator(Transformer):
+    def __init__(self, ctx):
+        self.ctx = ctx
 
-    return node.traverse(eval_node)
+    def visit(self, node):
+        if not isinstance(node, FTL.BaseNode):
+            return node
+
+        if isinstance(node, Transform):
+            # Some transforms don't expect other transforms as children.
+            # Evaluate the children first.
+            transform = self.generic_visit(node)
+            return transform(self.ctx)
+
+        return self.generic_visit(node)
+
+
+def evaluate(ctx, node):
+    evaluator = Evaluator(ctx)
+    return evaluator.visit(node.clone())
 
 
 def chain_elements(elements):
@@ -238,7 +251,7 @@ class COPY_PATTERN(FluentSource):
     pass
 
 
-class TransformPattern(FluentSource, FTL.Transformer):
+class TransformPattern(FluentSource, Transformer):
     """Base class for modifying a Fluent pattern as part of a migration.
 
     Implement visit_* methods of the Transformer pattern to do the

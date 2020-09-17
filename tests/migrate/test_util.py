@@ -15,28 +15,6 @@ def get_source(acc, cur):
     return acc
 
 
-class TestTraverse(unittest.TestCase):
-    def test_copy_concat(self):
-        node = FTL.Message(
-            FTL.Identifier('hello'),
-            value=CONCAT(
-                COPY('path1', 'key1'),
-                COPY('path2', 'key2')
-            )
-        )
-
-        result = node.traverse(lambda x: x)
-
-        self.assertEqual(
-            result.value.elements[0].key,
-            'key1'
-        )
-        self.assertEqual(
-            result.value.elements[1].key,
-            'key2'
-        )
-
-
 class TestReduce(unittest.TestCase):
     def test_copy_value(self):
         node = FTL.Message(
