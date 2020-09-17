@@ -10,6 +10,7 @@ from fluent.syntax.parser import FluentParser
 from fluent.migrate.util import parse, ftl, ftl_resource_to_json
 from fluent.migrate.merge import merge_resource
 from fluent.migrate.transforms import COPY
+from fluent.migrate.evaluator import Evaluator
 
 
 class MockContext(unittest.TestCase):
@@ -21,11 +22,15 @@ class MockContext(unittest.TestCase):
         if translation is not None:
             return translation.val
 
+    def evaluate(self, node):
+        return self.evaluator.visit(node)
+
 
 class TestMergeMessages(MockContext):
     maxDiff = None
 
     def setUp(self):
+        self.evaluator = Evaluator(self)
         self.en_us_ftl = parse(FluentParser, ftl('''
             title  = Downloads
             header = Your Downloads
@@ -126,6 +131,7 @@ class TestMergeMessages(MockContext):
 
 class TestMergeAllEntries(MockContext):
     def setUp(self):
+        self.evaluator = Evaluator(self)
         self.en_us_ftl = parse(FluentParser, ftl('''
             # This Source Code Form is subject to the terms of …
 
@@ -240,6 +246,7 @@ class TestMergeAllEntries(MockContext):
 
 class TestMergeSubset(MockContext):
     def setUp(self):
+        self.evaluator = Evaluator(self)
         self.en_us_ftl = parse(FluentParser, ftl('''
             # This Source Code Form is subject to the terms of …
 

@@ -8,7 +8,8 @@ from compare_locales.parser import PropertiesParser
 import fluent.syntax.ast as FTL
 from fluent.migrate.util import parse, ftl_pattern_to_json
 from fluent.migrate.helpers import VARIABLE_REFERENCE
-from fluent.migrate.transforms import evaluate, REPLACE
+from fluent.migrate.transforms import REPLACE
+from fluent.migrate.evaluator import Evaluator
 
 
 class MockContext(unittest.TestCase):
@@ -19,9 +20,13 @@ class MockContext(unittest.TestCase):
         # defined in setUp.
         return self.strings.get(key, None).val
 
+    def evaluate(self, node):
+        return self.evaluator.visit(node)
+
 
 class TestReplace(MockContext):
     def setUp(self):
+        self.evaluator = Evaluator(self)
         self.strings = parse(PropertiesParser, '''
             empty =
             hello = Hello, #1!
@@ -52,7 +57,7 @@ class TestReplace(MockContext):
         )
 
         self.assertEqual(
-            evaluate(self, transform).to_json(),
+            self.evaluate(transform).to_json(),
             ftl_pattern_to_json('{""}')
         )
 
@@ -66,7 +71,7 @@ class TestReplace(MockContext):
         )
 
         self.assertEqual(
-            evaluate(self, transform).to_json(),
+            self.evaluate(transform).to_json(),
             ftl_pattern_to_json('Hello, { $username }!')
         )
 
@@ -81,7 +86,7 @@ class TestReplace(MockContext):
         )
 
         self.assertEqual(
-            evaluate(self, transform).to_json(),
+            self.evaluate(transform).to_json(),
             ftl_pattern_to_json('Welcome, { $username }, to { $appname }!')
         )
 
@@ -97,7 +102,7 @@ class TestReplace(MockContext):
         )
 
         self.assertEqual(
-            evaluate(self, transform).to_json(),
+            self.evaluate(transform).to_json(),
             ftl_pattern_to_json('Welcome, { $username }, to { $appname }!')
         )
 
@@ -111,7 +116,7 @@ class TestReplace(MockContext):
         )
 
         self.assertEqual(
-            evaluate(self, transform).to_json(),
+            self.evaluate(transform).to_json(),
             ftl_pattern_to_json('Welcome, { $username }, to #2!')
         )
 
@@ -125,7 +130,7 @@ class TestReplace(MockContext):
         )
 
         self.assertEqual(
-            evaluate(self, transform).to_json(),
+            self.evaluate(transform).to_json(),
             ftl_pattern_to_json('{ $foo } Bar')
         )
 
@@ -139,7 +144,7 @@ class TestReplace(MockContext):
         )
 
         self.assertEqual(
-            evaluate(self, transform).to_json(),
+            self.evaluate(transform).to_json(),
             ftl_pattern_to_json('Foo { $bar }')
         )
 
@@ -153,7 +158,7 @@ class TestReplace(MockContext):
         )
 
         self.assertEqual(
-            evaluate(self, transform).to_json(),
+            self.evaluate(transform).to_json(),
             ftl_pattern_to_json('First: { $var } Second: { $var }')
         )
 
@@ -168,7 +173,7 @@ class TestReplace(MockContext):
         )
 
         self.assertEqual(
-            evaluate(self, transform).to_json(),
+            self.evaluate(transform).to_json(),
             ftl_pattern_to_json('{ $foo } { $bar } { $foo } { $bar }')
         )
 
@@ -184,7 +189,7 @@ class TestReplace(MockContext):
         )
 
         self.assertEqual(
-            evaluate(self, transform).to_json(),
+            self.evaluate(transform).to_json(),
             ftl_pattern_to_json('Hello, { $user }!')
         )
 
@@ -198,7 +203,7 @@ class TestReplace(MockContext):
         )
 
         self.assertEqual(
-            evaluate(self, transform).to_json(),
+            self.evaluate(transform).to_json(),
             ftl_pattern_to_json('Hello, you!')
         )
 
@@ -219,13 +224,14 @@ class TestReplace(MockContext):
         )
 
         self.assertEqual(
-            evaluate(self, transform).to_json(),
+            self.evaluate(transform).to_json(),
             ftl_pattern_to_json('Hello, <img> { $user }!')
         )
 
 
 class TestNormalize(MockContext):
     def setUp(self):
+        self.evaluator = Evaluator(self)
         self.strings = parse(PropertiesParser, '''
             empty =
             simple = %1$S
@@ -250,7 +256,7 @@ class TestNormalize(MockContext):
         )
 
         self.assertEqual(
-            evaluate(self, transform).to_json(),
+            self.evaluate(transform).to_json(),
             ftl_pattern_to_json('{""}')
         )
 
@@ -267,7 +273,7 @@ class TestNormalize(MockContext):
         )
 
         self.assertEqual(
-            evaluate(self, transform).to_json(),
+            self.evaluate(transform).to_json(),
             ftl_pattern_to_json('{ $user }')
         )
 
@@ -287,7 +293,7 @@ class TestNormalize(MockContext):
         )
 
         self.assertEqual(
-            evaluate(self, transform).to_json(),
+            self.evaluate(transform).to_json(),
             ftl_pattern_to_json('{ $count } { $user }')
         )
 
@@ -307,7 +313,7 @@ class TestNormalize(MockContext):
         )
 
         self.assertEqual(
-            evaluate(self, transform).to_json(),
+            self.evaluate(transform).to_json(),
             ftl_pattern_to_json('{ $count }')
         )
 
@@ -327,7 +333,7 @@ class TestNormalize(MockContext):
         )
 
         self.assertEqual(
-            evaluate(self, transform).to_json(),
+            self.evaluate(transform).to_json(),
             ftl_pattern_to_json('{ $count } { $user }')
         )
 
@@ -347,7 +353,7 @@ class TestNormalize(MockContext):
         )
 
         self.assertEqual(
-            evaluate(self, transform).to_json(),
+            self.evaluate(transform).to_json(),
             ftl_pattern_to_json('{ $count }')
         )
 
@@ -367,7 +373,7 @@ class TestNormalize(MockContext):
         )
 
         self.assertEqual(
-            evaluate(self, transform).to_json(),
+            self.evaluate(transform).to_json(),
             ftl_pattern_to_json('{ $count }')
         )
 
@@ -384,7 +390,7 @@ class TestNormalize(MockContext):
         )
 
         self.assertEqual(
-            evaluate(self, transform).to_json(),
+            self.evaluate(transform).to_json(),
             ftl_pattern_to_json('{ $count }%')
         )
 

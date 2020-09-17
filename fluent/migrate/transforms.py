@@ -71,28 +71,6 @@ from fluent.syntax.visitor import Transformer
 from .errors import NotSupportedError
 
 
-class Evaluator(Transformer):
-    def __init__(self, ctx):
-        self.ctx = ctx
-
-    def visit(self, node):
-        if not isinstance(node, FTL.BaseNode):
-            return node
-
-        if isinstance(node, Transform):
-            # Some transforms don't expect other transforms as children.
-            # Evaluate the children first.
-            transform = self.generic_visit(node)
-            return transform(self.ctx)
-
-        return self.generic_visit(node)
-
-
-def evaluate(ctx, node):
-    evaluator = Evaluator(ctx)
-    return evaluator.visit(node.clone())
-
-
 def chain_elements(elements):
     '''Flatten a list of FTL nodes into an iterator over PatternElements.'''
     for element in elements:
@@ -408,7 +386,7 @@ class REPLACE_IN_TEXT(Transform):
         # Order the replacements by the position of the original placeable in
         # the translation.
         replacements = (
-            (key, evaluate(ctx, self.replacements[key]))
+            (key, ctx.evaluate(self.replacements[key]))
             for index, key
             in sorted(keys_indexed.items(), key=lambda x: x[0])
         )
@@ -475,7 +453,7 @@ class PLURALS(LegacySource):
 
     def __call__(self, ctx):
         element = super(PLURALS, self).__call__(ctx)
-        selector = evaluate(ctx, self.selector)
+        selector = ctx.evaluate(self.selector)
         keys = ctx.plural_categories
         forms = [
             FTL.TextElement(part)
@@ -508,7 +486,7 @@ class PLURALS(LegacySource):
         # variant. We don't need to insert a SelectExpression for them.
         if len(pairs) == 1:
             _, only_form = pairs[0]
-            only_variant = evaluate(ctx, self.foreach(only_form))
+            only_variant = ctx.evaluate(self.foreach(only_form))
             return Transform.pattern_of(only_variant)
 
         # Make sure the default key is defined. If it's missing, use the last
@@ -522,7 +500,7 @@ class PLURALS(LegacySource):
             # Run the legacy plural form through `foreach` which returns an
             # `FTL.Node` describing the transformation required for each
             # variant. Then evaluate it to a migrated FTL node.
-            value = evaluate(ctx, self.foreach(form))
+            value = ctx.evaluate(self.foreach(form))
             return FTL.Variant(
                 key=FTL.Identifier(key),
                 value=value,

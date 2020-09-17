@@ -7,7 +7,8 @@ from compare_locales.parser import PropertiesParser
 
 from fluent.migrate.util import parse, ftl_pattern_to_json
 from fluent.migrate.helpers import VARIABLE_REFERENCE
-from fluent.migrate.transforms import evaluate, PLURALS, REPLACE_IN_TEXT
+from fluent.migrate.transforms import PLURALS, REPLACE_IN_TEXT
+from fluent.migrate.evaluator import Evaluator
 
 
 class MockContext(unittest.TestCase):
@@ -18,9 +19,13 @@ class MockContext(unittest.TestCase):
         # defined in setUp.
         return self.strings.get(key, None).val
 
+    def evaluate(self, node):
+        return self.evaluator.visit(node)
+
 
 class TestPlural(MockContext):
     def setUp(self):
+        self.evaluator = Evaluator(self)
         self.strings = parse(PropertiesParser, '''
             plural = One;Few;Many
         ''')
@@ -34,7 +39,7 @@ class TestPlural(MockContext):
     def test_plural(self):
         self.plural_categories = ('one', 'few', 'many')
         self.assertEqual(
-            evaluate(self, self.transform).to_json(),
+            self.evaluate(self.transform).to_json(),
             ftl_pattern_to_json('''{ $num ->
                     [one] One
                     [few] Few
@@ -46,7 +51,7 @@ class TestPlural(MockContext):
     def test_plural_too_few_variants(self):
         self.plural_categories = ('one', 'few', 'many', 'other')
         self.assertEqual(
-            evaluate(self, self.transform).to_json(),
+            self.evaluate(self.transform).to_json(),
             ftl_pattern_to_json('''{ $num ->
                     [one] One
                     [few] Few
@@ -59,7 +64,7 @@ class TestPlural(MockContext):
     def test_plural_too_many_variants(self):
         self.plural_categories = ('one', 'few')
         self.assertEqual(
-            evaluate(self, self.transform).to_json(),
+            self.evaluate(self.transform).to_json(),
             ftl_pattern_to_json('''{ $num ->
                     [one] One
                    *[few] Few
@@ -72,6 +77,7 @@ class TestPluralOrder(MockContext):
     plural_categories = ('one', 'other', 'few')
 
     def setUp(self):
+        self.evaluator = Evaluator(self)
         self.strings = parse(PropertiesParser, '''
             plural = One;Other;Few
         ''')
@@ -84,7 +90,7 @@ class TestPluralOrder(MockContext):
 
     def test_unordinary_order(self):
         self.assertEqual(
-            evaluate(self, self.transform).to_json(),
+            self.evaluate(self.transform).to_json(),
             ftl_pattern_to_json('''{ $num ->
                     [one] One
                     [few] Few
@@ -98,6 +104,7 @@ class TestPluralReplace(MockContext):
     plural_categories = ('one', 'few', 'many')
 
     def setUp(self):
+        self.evaluator = Evaluator(self)
         self.strings = parse(PropertiesParser, '''
             plural = One;Few #1;Many #1
         ''')
@@ -116,7 +123,7 @@ class TestPluralReplace(MockContext):
         )
 
         self.assertEqual(
-            evaluate(self, transform).to_json(),
+            self.evaluate(transform).to_json(),
             ftl_pattern_to_json('''{ $num ->
                     [one] One
                     [few] Few { $num }
@@ -128,6 +135,7 @@ class TestPluralReplace(MockContext):
 
 class TestNoPlural(MockContext):
     def setUp(self):
+        self.evaluator = Evaluator(self)
         self.strings = parse(PropertiesParser, '''
             plural-other = Other
             plural-one-other = One;Other
@@ -142,7 +150,7 @@ class TestNoPlural(MockContext):
         )
 
         self.assertEqual(
-            evaluate(self, transform).to_json(),
+            self.evaluate(transform).to_json(),
             ftl_pattern_to_json('Other')
         )
 
@@ -155,7 +163,7 @@ class TestNoPlural(MockContext):
         )
 
         self.assertEqual(
-            evaluate(self, transform).to_json(),
+            self.evaluate(transform).to_json(),
             ftl_pattern_to_json('One')
         )
 
@@ -168,7 +176,7 @@ class TestNoPlural(MockContext):
         )
 
         self.assertEqual(
-            evaluate(self, transform).to_json(),
+            self.evaluate(transform).to_json(),
             ftl_pattern_to_json('Other')
         )
 
@@ -177,6 +185,7 @@ class TestEmpty(MockContext):
     plural_categories = ('one', 'few', 'many')
 
     def setUp(self):
+        self.evaluator = Evaluator(self)
         self.transform = PLURALS(
             'test.properties',
             'plural',
@@ -189,7 +198,7 @@ class TestEmpty(MockContext):
         ''')
 
         self.assertEqual(
-            evaluate(self, self.transform).to_json(),
+            self.evaluate(self.transform).to_json(),
             ftl_pattern_to_json('''{ $num ->
                     [few] Few
                    *[many] Many
@@ -203,7 +212,7 @@ class TestEmpty(MockContext):
         ''')
 
         self.assertEqual(
-            evaluate(self, self.transform).to_json(),
+            self.evaluate(self.transform).to_json(),
             ftl_pattern_to_json('''{ $num ->
                     [one] One
                     [few] Few
@@ -218,7 +227,7 @@ class TestEmpty(MockContext):
         ''')
 
         self.assertEqual(
-            evaluate(self, self.transform).to_json(),
+            self.evaluate(self.transform).to_json(),
             ftl_pattern_to_json('{""}')
         )
 
@@ -228,7 +237,7 @@ class TestEmpty(MockContext):
         ''')
 
         self.assertEqual(
-            evaluate(self, self.transform).to_json(),
+            self.evaluate(self.transform).to_json(),
             ftl_pattern_to_json('{""}')
         )
 

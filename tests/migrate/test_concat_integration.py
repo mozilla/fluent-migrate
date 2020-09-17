@@ -8,7 +8,8 @@ from compare_locales.parser import PropertiesParser, DTDParser
 import fluent.syntax.ast as FTL
 from fluent.migrate.util import parse, ftl_pattern_to_json
 from fluent.migrate.helpers import VARIABLE_REFERENCE, MESSAGE_REFERENCE
-from fluent.migrate.transforms import evaluate, CONCAT, COPY, REPLACE
+from fluent.migrate.transforms import CONCAT, COPY, REPLACE
+from fluent.migrate.evaluator import Evaluator
 
 
 class MockContext(unittest.TestCase):
@@ -19,9 +20,13 @@ class MockContext(unittest.TestCase):
         # defined in setUp.
         return self.strings.get(key, None).val
 
+    def evaluate(self, node):
+        return self.evaluator.visit(node)
+
 
 class TestConcatLiteral(MockContext):
     def setUp(self):
+        self.evaluator = Evaluator(self)
         self.strings = parse(DTDParser, '''
             <!ENTITY update.failed.start        "Update failed. ">
             <!ENTITY update.failed.linkText     "Download manually">
@@ -38,13 +43,14 @@ class TestConcatLiteral(MockContext):
         )
 
         self.assertEqual(
-            evaluate(self, transform).to_json(),
+            self.evaluate(transform).to_json(),
             ftl_pattern_to_json('Update failed. <a>Download manually</a>!')
         )
 
 
 class TestConcatInterpolate(MockContext):
     def setUp(self):
+        self.evaluator = Evaluator(self)
         self.strings = parse(DTDParser, '''
             <!ENTITY channel.description.start  "You are on the ">
             <!ENTITY channel.description.end    " channel.">
@@ -58,7 +64,7 @@ class TestConcatInterpolate(MockContext):
         )
 
         self.assertEqual(
-            evaluate(self, transform).to_json(),
+            self.evaluate(transform).to_json(),
             ftl_pattern_to_json('You are on the { $channelname } channel.')
         )
 
@@ -70,13 +76,14 @@ class TestConcatInterpolate(MockContext):
         )
 
         self.assertEqual(
-            evaluate(self, transform).to_json(),
+            self.evaluate(transform).to_json(),
             ftl_pattern_to_json('You are on the { $channelname } channel.')
         )
 
 
 class TestConcatReplace(MockContext):
     def setUp(self):
+        self.evaluator = Evaluator(self)
         self.strings = parse(DTDParser, '''
             <!ENTITY community.start       "&brandShortName; is designed by ">
             <!ENTITY community.mozillaLink "&vendorShortName;">
@@ -115,7 +122,7 @@ class TestConcatReplace(MockContext):
         )
 
         self.assertEqual(
-            evaluate(self, transform).to_json(),
+            self.evaluate(transform).to_json(),
             ftl_pattern_to_json(
                 '{ brand-short-name } is designed by '
                 '<a>{ vendor-short-name }</a>, a <a>global community</a> '
