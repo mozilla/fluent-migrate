@@ -337,6 +337,26 @@ class TestNormalize(MockContext):
             ftl_pattern_to_json('{ $count } { $user }')
         )
 
+    def test_two_default_normalize(self):
+        transform = REPLACE(
+            'test.properties',
+            'two',
+            {
+                '%1$d': FTL.Placeable(
+                    VARIABLE_REFERENCE('count')
+                ),
+                '%2$S': FTL.Placeable(
+                    VARIABLE_REFERENCE('user')
+                ),
+            },
+        )
+
+        self.assertEqual(
+            self.evaluate(transform).to_json(),
+            ftl_pattern_to_json('{ $count } { $user }')
+        )
+
+
     def test_hidden(self):
         transform = REPLACE(
             'test.properties',
