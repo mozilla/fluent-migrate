@@ -1,5 +1,9 @@
 # Changelog
 
+## fluent.migrate 0.11 (March 12, 2021)
+
+  - Change default behaviour for normalize_printf for .properties files
+
 ## fluent.migrate 0.10 (September 18, 2020)
 
   - Update to fluent.syntax 0.18.
