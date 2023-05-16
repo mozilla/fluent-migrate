@@ -1,8 +1,0 @@
-{
-    "linters": {
-        "sample": {
-            "type": "flake8",
-            "include": "(\\.py$)"
-        }
-    }
-}
