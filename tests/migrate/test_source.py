@@ -1,7 +1,3 @@
-# coding=utf8
-from __future__ import unicode_literals
-from __future__ import absolute_import
-
 import unittest
 import six
 from compare_locales.parser import PropertiesParser, DTDParser
@@ -19,17 +15,17 @@ from fluent.migrate.helpers import VARIABLE_REFERENCE
 class TestNotSupportedError(unittest.TestCase):
     def test_source(self):
         pattern = ('Please use COPY_PATTERN to migrate from Fluent files')
-        with six.assertRaisesRegex(self, NotSupportedError, pattern):
+        with self.assertRaisesRegex(NotSupportedError, pattern):
             LegacySource('test.ftl', 'foo')
 
     def test_copy(self):
         pattern = ('Please use COPY_PATTERN to migrate from Fluent files')
-        with six.assertRaisesRegex(self, NotSupportedError, pattern):
+        with self.assertRaisesRegex(NotSupportedError, pattern):
             COPY('test.ftl', 'foo')
 
     def test_plurals(self):
         pattern = ('Please use COPY_PATTERN to migrate from Fluent files')
-        with six.assertRaisesRegex(self, NotSupportedError, pattern):
+        with self.assertRaisesRegex(NotSupportedError, pattern):
             PLURALS(
                 'test.ftl',
                 'deleteAll',
@@ -38,7 +34,7 @@ class TestNotSupportedError(unittest.TestCase):
 
     def test_replace(self):
         pattern = ('Please use COPY_PATTERN to migrate from Fluent files')
-        with six.assertRaisesRegex(self, NotSupportedError, pattern):
+        with self.assertRaisesRegex(NotSupportedError, pattern):
             REPLACE(
                 'test.ftl',
                 'hello',
@@ -49,13 +45,13 @@ class TestNotSupportedError(unittest.TestCase):
 
     def test_copy_pattern(self):
         pattern = ('Please use COPY to migrate from legacy files')
-        with six.assertRaisesRegex(self, NotSupportedError, pattern):
+        with self.assertRaisesRegex(NotSupportedError, pattern):
             COPY_PATTERN('test.properties', 'foo')
         self.assertIsNotNone(COPY_PATTERN('test.ftl', 'foo'))
         self.assertIsNotNone(COPY_PATTERN('test.ftl', 'foo.bar'))
         self.assertIsNotNone(COPY_PATTERN('test.ftl', '-foo'))
         term_attr_pattern = ('Cannot migrate from Term Attributes')
-        with six.assertRaisesRegex(self, NotSupportedError, term_attr_pattern):
+        with self.assertRaisesRegex(NotSupportedError, term_attr_pattern):
             COPY_PATTERN('test.ftl', '-foo.bar')
 
 

@@ -1,10 +1,6 @@
-# coding=utf8
-from __future__ import unicode_literals
-from __future__ import absolute_import
-
 import unittest
 import six
-from six.moves import zip_longest
+from itertools import zip_longest
 
 import fluent.syntax.ast as FTL
 from fluent.migrate.helpers import transforms_from, MESSAGE_REFERENCE
@@ -269,21 +265,21 @@ new-key =
 
     def test_implicit_transform(self):
         pattern = "runs implicitly"
-        with six.assertRaisesRegex(self, NotSupportedError, pattern):
+        with self.assertRaisesRegex(NotSupportedError, pattern):
             transforms_from("""
 new-key = { CONCAT("a", "b") }
 """)
 
     def test_forbidden_transform(self):
         pattern = "requires additional logic"
-        with six.assertRaisesRegex(self, NotSupportedError, pattern):
+        with self.assertRaisesRegex(NotSupportedError, pattern):
             transforms_from("""
 new-key = { REPLACE() }
 """)
 
     def test_broken_transform(self):
         pattern = "contains parse error"
-        with six.assertRaisesRegex(self, InvalidTransformError, pattern):
+        with self.assertRaisesRegex(InvalidTransformError, pattern):
             transforms_from("""
 new-key = { COPY('path', 'key') }
 """)
@@ -304,14 +300,14 @@ new-key = { COPY(from_path, "key") }
 
     def test_unknown_substitution_name(self):
         pattern = "Unknown substitution in COPY: unknown_path"
-        with six.assertRaisesRegex(self, InvalidTransformError, pattern):
+        with self.assertRaisesRegex(InvalidTransformError, pattern):
             transforms_from("""
 new-key = { COPY(unknown_path, "key") }
 """)
 
     def test_invalid_argument_type(self):
         pattern = "Invalid argument passed to COPY: VariableReference"
-        with six.assertRaisesRegex(self, InvalidTransformError, pattern):
+        with self.assertRaisesRegex(InvalidTransformError, pattern):
             transforms_from("""
 new-key = { COPY($invalid_type, "key") }
 """)

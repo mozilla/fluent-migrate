@@ -1,7 +1,3 @@
-# coding=utf8
-from __future__ import unicode_literals
-from __future__ import absolute_import
-
 import os
 import logging
 import six
@@ -40,7 +36,7 @@ class TestMigrationContext_AddTransforms(unittest.TestCase):
             ),
         ])
         self.assertSetEqual(
-            self.ctx.dependencies[(u'aboutDownloads.ftl', u'about')],
+            self.ctx.dependencies[('aboutDownloads.ftl', 'about')],
             set()
         )
         self.assertTrue(
@@ -424,7 +420,7 @@ class TestMissingLocalizationFiles(unittest.TestCase):
 
     def test_all_files_missing(self):
         pattern = ('No localization files were found')
-        with six.assertRaisesRegex(self, EmptyLocalizationError, pattern):
+        with self.assertRaisesRegex(EmptyLocalizationError, pattern):
             self.ctx.add_transforms('existing.ftl', 'existing.ftl', [
                 FTL.Message(
                     id=FTL.Identifier('foo'),

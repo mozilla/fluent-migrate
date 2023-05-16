@@ -1,11 +1,7 @@
-# coding=utf8
-from __future__ import unicode_literals
-from __future__ import absolute_import
-
 import ast
 import unittest
 
-import mock
+from unittest import mock
 
 from fluent.migrate import validator
 from fluent.migrate import COPY, COPY_PATTERN

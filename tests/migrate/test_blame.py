@@ -1,7 +1,3 @@
-# coding=utf8
-from __future__ import unicode_literals
-from __future__ import absolute_import
-
 import unittest
 from datetime import datetime
 import os
@@ -14,7 +10,7 @@ from fluent.migrate.blame import Blame
 
 class MockedBlame(Blame):
     def __init__(self, unicode_content):
-        super(MockedBlame, self).__init__(None)
+        super().__init__(None)
         self.content = unicode_content
 
     def readFile(self, parser, path):
@@ -110,7 +106,7 @@ class TestIntegration(unittest.TestCase):
         client.open()
         client.commit(
             message='Initial commit',
-            user='Hüsker Dü'.encode('utf-8'),
+            user='Hüsker Dü'.encode(),
             date=datetime.fromtimestamp(self.timestamps[0]),
             addremove=True,
         )
@@ -118,7 +114,7 @@ class TestIntegration(unittest.TestCase):
             f.write('two = second line\n')
         client.commit(
             message='Second commit',
-            user='😂'.encode('utf-8'),
+            user='😂'.encode(),
             date=datetime.fromtimestamp(self.timestamps[1]),
             addremove=True,
         )
