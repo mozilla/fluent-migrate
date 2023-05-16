@@ -23,8 +23,8 @@ setup(
     ],
     packages=['fluent', 'fluent.migrate'],
     install_requires=[
-        'compare-locales >=8.1, <9.0',
-        'fluent.syntax >=0.18.0, <0.19',
+        'compare-locales >=9.0.1, <10.0',
+        'fluent.syntax >=0.19.0, <0.20',
     ],
     extras_require={
         'hg': ['python-hglib',],
