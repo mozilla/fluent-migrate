@@ -1,7 +1,3 @@
-# coding=utf8
-from __future__ import unicode_literals
-from __future__ import absolute_import
-
 import unittest
 from datetime import datetime
 import os
@@ -13,7 +9,7 @@ from fluent.migrate.helpers import transforms_from
 from fluent.migrate import tool
 
 
-class MockMigrationModule(object):
+class MockMigrationModule:
     __name__ = 'tests.migrate.some'
     @staticmethod
     def migrate(ctx):
@@ -48,7 +44,7 @@ target = should be migrated.
         client.open()
         client.commit(
             message='Initial commit',
-            user='Hüsker Dü'.encode('utf-8'),
+            user='Hüsker Dü'.encode(),
             date=datetime.fromtimestamp(self.timestamps[0]),
             addremove=True,
         )
@@ -56,7 +52,7 @@ target = should be migrated.
             f.write('    .with = attribute\n')
         client.commit(
             message='Second commit',
-            user='😂'.encode('utf-8'),
+            user='😂'.encode(),
             date=datetime.fromtimestamp(self.timestamps[1]),
             addremove=True,
         )
@@ -76,8 +72,8 @@ target = should be migrated.
         tip = self.client.tip()
         # There is only one commit
         self.assertEqual(tip.rev, b'2')
-        self.assertEqual(tip.author, '😂'.encode('utf-8'))
-        with open(os.path.join(self.root, 'pl', 'd1', 'f1.ftl'), 'r') as f:
+        self.assertEqual(tip.author, '😂'.encode())
+        with open(os.path.join(self.root, 'pl', 'd1', 'f1.ftl')) as f:
             content = f.read()
         self.assertEqual(
             content,

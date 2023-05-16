@@ -1,7 +1,3 @@
-# coding=utf8
-from __future__ import unicode_literals
-from __future__ import absolute_import
-
 import unittest
 
 from fluent.migrate.context import MigrationContext
@@ -53,7 +49,7 @@ selected = {$foo ->
 
 class VariantPicker(TransformPattern):
     def __init__(self, path, key, variant, exclude=False):
-        super(VariantPicker, self).__init__(path, key)
+        super().__init__(path, key)
         self.variant = variant
         self.exclude = exclude
 
