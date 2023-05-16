@@ -1,6 +1,5 @@
 import os
 import logging
-import six
 import unittest
 
 import fluent.syntax.ast as FTL

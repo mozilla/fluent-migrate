@@ -6,7 +6,6 @@ import importlib
 import sys
 
 import hglib
-import six
 
 from fluent.migrate.context import MigrationContext
 from fluent.migrate.errors import MigrationError

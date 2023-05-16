@@ -1,5 +1,4 @@
 import unittest
-import six
 from itertools import zip_longest
 
 import fluent.syntax.ast as FTL

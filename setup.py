@@ -22,7 +22,6 @@ setup(
     install_requires=[
         'compare-locales >=8.1, <9.0',
         'fluent.syntax >=0.18.0, <0.19',
-        'six',
     ],
     extras_require={
         'hg': ['python-hglib',],

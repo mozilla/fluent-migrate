@@ -1,5 +1,4 @@
 import unittest
-import six
 from compare_locales.parser import PropertiesParser, DTDParser
 
 import fluent.syntax.ast as FTL

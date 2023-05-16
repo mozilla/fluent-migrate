@@ -1,6 +1,5 @@
 import argparse
 import ast
-import six
 from itertools import zip_longest
 
 from fluent.migrate import transforms
