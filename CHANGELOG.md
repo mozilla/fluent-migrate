@@ -1,5 +1,15 @@
 # Changelog
 
+## fluent.migrate 0.12.0 (May 16, 2023)
+
+  - Trim plural variants in fluent.migrate `PLURALS()` ([Bug 1794286](https://bugzilla.mozilla.org/show_bug.cgi?1794286))
+  - Update dependencies to compare-locales 9.0.1 & fluent.syntax 0.19.0
+  - Add support for Python 3.8, 3.9 & 3.10
+  - Drop Python 2 support
+  - Drop Windows support
+  - Drop dependency on six
+  - Update contact details, including new [repo URL](https://github.com/mozilla/fluent-migrate)
+
 ## fluent.migrate 0.11 (March 12, 2021)
 
   - Change default behaviour for normalize_printf for .properties files
