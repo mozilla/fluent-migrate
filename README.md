@@ -36,9 +36,3 @@ The migrations are run as python modules, so you need to have their file locatio
 An example would look like
 
     $ migrate-l10n --lang it --reference-dir gecko-strings --localization-dir l10n-central/it bug_1451992_preferences_sitedata bug_1451992_preferences_translation
-
-Contact
--------
-
- - mailing list: https://lists.mozilla.org/listinfo/tools-l10n
- - bugzilla: [Open Bugs](https://bugzilla.mozilla.org/buglist.cgi?component=Fluent%20Migration&product=Localization%20Infrastructure%20and%20Tools&bug_status=__open__) - [New Bug](https://bugzilla.mozilla.org/enter_bug.cgi?product=Localization%20Infrastructure%20and%20Tools&component=Fluent%20Migration)

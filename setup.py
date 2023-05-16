@@ -9,7 +9,7 @@ setup(
     author='Mozilla',
     author_email='l10n-drivers@mozilla.org',
     license='APL 2',
-    url='https://hg.mozilla.org/l10n/fluent-migration/',
+    url='https://github.com/mozilla/fluent-migrate',
     keywords=['fluent', 'localization', 'l10n'],
     classifiers=[
         'Development Status :: 3 - Alpha',
