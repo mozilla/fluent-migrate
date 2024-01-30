@@ -12,17 +12,11 @@ class TestChainElements(unittest.TestCase):
     def test_expression(self):
         self.assertEqual(
             FTL.Pattern(
-                elements=[
-                    FTL.Placeable(
-                        expression=FTL.NumberLiteral(4)
-                    )
-                ]
+                elements=[FTL.Placeable(expression=FTL.NumberLiteral(4))]
             ).to_json(),
             FTL.Pattern(
-                elements=list(chain_elements([
-                    FTL.NumberLiteral(4)
-                ]))
-            ).to_json()
+                elements=list(chain_elements([FTL.NumberLiteral(4)]))
+            ).to_json(),
         )
 
     def test_flatten(self):
@@ -30,26 +24,28 @@ class TestChainElements(unittest.TestCase):
         elements.
         This only works one level deep.
         """
-        elements = list(chain_elements([
-            FTL.TextElement("some"),
-            FTL.Pattern(
-                elements=[
-                    FTL.TextElement("other"),
+        elements = list(
+            chain_elements(
+                [
+                    FTL.TextElement("some"),
+                    FTL.Pattern(
+                        elements=[
+                            FTL.TextElement("other"),
+                        ]
+                    ),
+                    FTL.TextElement("text"),
                 ]
-            ),
-            FTL.TextElement("text"),
-        ]))
+            )
+        )
         self.assertEqual(
-            FTL.Pattern(
-                elements=elements
-            ).to_json(),
+            FTL.Pattern(elements=elements).to_json(),
             FTL.Pattern(
                 elements=[
                     FTL.TextElement("some"),
                     FTL.TextElement("other"),
                     FTL.TextElement("text"),
                 ]
-            ).to_json()
+            ).to_json(),
         )
 
 
@@ -58,47 +54,25 @@ class TestPatternOf(unittest.TestCase):
 
     def test_empty(self):
         pattern = Transform.pattern_of()
-        self.assertEqual(
-            pattern.to_json(),
-            ftl_pattern_to_json('{""}')
-        )
+        self.assertEqual(pattern.to_json(), ftl_pattern_to_json('{""}'))
 
     def test_empty_text(self):
-        pattern = Transform.pattern_of(
-            FTL.TextElement("")
-        )
-        self.assertEqual(
-            pattern.to_json(),
-            ftl_pattern_to_json('{""}')
-        )
+        pattern = Transform.pattern_of(FTL.TextElement(""))
+        self.assertEqual(pattern.to_json(), ftl_pattern_to_json('{""}'))
 
     def test_leading_white(self):
-        pattern = Transform.pattern_of(
-            FTL.TextElement("  word")
-        )
-        self.assertEqual(
-            pattern.to_json(),
-            ftl_pattern_to_json('{"  "}word')
-        )
+        pattern = Transform.pattern_of(FTL.TextElement("  word"))
+        self.assertEqual(pattern.to_json(), ftl_pattern_to_json('{"  "}word'))
 
     def test_trailing_white(self):
-        pattern = Transform.pattern_of(
-            FTL.TextElement("word  ")
-        )
-        self.assertEqual(
-            pattern.to_json(),
-            ftl_pattern_to_json('word{"  "}')
-        )
+        pattern = Transform.pattern_of(FTL.TextElement("word  "))
+        self.assertEqual(pattern.to_json(), ftl_pattern_to_json('word{"  "}'))
 
     def test_leading_trailing(self):
         pattern = Transform.pattern_of(
-            FTL.TextElement(" foo "),
-            FTL.TextElement(" bar ")
+            FTL.TextElement(" foo "), FTL.TextElement(" bar ")
         )
-        self.assertEqual(
-            pattern.to_json(),
-            ftl_pattern_to_json('{" "}foo  bar{" "}')
-        )
+        self.assertEqual(pattern.to_json(), ftl_pattern_to_json('{" "}foo  bar{" "}'))
 
     def test_adjoin(self):
         pattern = Transform.pattern_of(
@@ -106,50 +80,39 @@ class TestPatternOf(unittest.TestCase):
             FTL.TextElement(" "),
             FTL.TextElement("of"),
             FTL.StringLiteral(" "),
-            FTL.TextElement("mouth")
+            FTL.TextElement("mouth"),
         )
-        self.assertEqual(
-            pattern.to_json(),
-            ftl_pattern_to_json('word of mouth')
-        )
+        self.assertEqual(pattern.to_json(), ftl_pattern_to_json("word of mouth"))
 
     def test_inner_literal(self):
         pattern = Transform.pattern_of(
             FTL.TextElement("apples"),
             FTL.StringLiteral("\\u002B"),
-            FTL.TextElement("oranges")
+            FTL.TextElement("oranges"),
         )
         self.assertEqual(
-            pattern.to_json(),
-            ftl_pattern_to_json('apples{ "\\u002B" }oranges')
+            pattern.to_json(), ftl_pattern_to_json('apples{ "\\u002B" }oranges')
         )
 
     def test_multiline_inside(self):
         pattern = Transform.pattern_of(
             FTL.TextElement("foo\nbar\n\nbaz"),
         )
-        self.assertEqual(
-            pattern.to_json(),
-            ftl_pattern_to_json('foo\n bar\n\n baz')
-        )
+        self.assertEqual(pattern.to_json(), ftl_pattern_to_json("foo\n bar\n\n baz"))
 
     def test_multiline_outside(self):
         pattern = Transform.pattern_of(
             FTL.TextElement("\nfoo\nbar\n\n"),
         )
         self.assertEqual(
-            pattern.to_json(),
-            ftl_pattern_to_json('{""}\n foo\n bar\n\n {""}')
+            pattern.to_json(), ftl_pattern_to_json('{""}\n foo\n bar\n\n {""}')
         )
 
     def test_multiline_outside_explicit(self):
         pattern = Transform.pattern_of(
             FTL.TextElement(" \nfoo\n "),
         )
-        self.assertEqual(
-            pattern.to_json(),
-            ftl_pattern_to_json('{" "}\n foo\n {" "}')
-        )
+        self.assertEqual(pattern.to_json(), ftl_pattern_to_json('{" "}\n foo\n {" "}'))
 
     @unittest.skip("pattern_of isn't capable of representing this")
     def test_multiline_indented_one_line(self):
@@ -170,7 +133,4 @@ class TestPatternOf(unittest.TestCase):
         pattern = Transform.pattern_of(
             FTL.TextElement("\n  foo\nbar"),
         )
-        self.assertEqual(
-            pattern.to_json(),
-            ftl_pattern_to_json('{""}\n    foo\n  bar')
-        )
+        self.assertEqual(pattern.to_json(), ftl_pattern_to_json('{""}\n    foo\n  bar'))

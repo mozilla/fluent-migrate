@@ -4,7 +4,10 @@ from compare_locales.parser import PropertiesParser, DTDParser
 import fluent.syntax.ast as FTL
 from fluent.migrate.errors import NotSupportedError
 from fluent.migrate.transforms import (
-    LegacySource, COPY, PLURALS, REPLACE,
+    LegacySource,
+    COPY,
+    PLURALS,
+    REPLACE,
     COPY_PATTERN,
 )
 from fluent.migrate.util import parse
@@ -13,45 +16,35 @@ from fluent.migrate.helpers import VARIABLE_REFERENCE
 
 class TestNotSupportedError(unittest.TestCase):
     def test_source(self):
-        pattern = ('Please use COPY_PATTERN to migrate from Fluent files')
+        pattern = "Please use COPY_PATTERN to migrate from Fluent files"
         with self.assertRaisesRegex(NotSupportedError, pattern):
-            LegacySource('test.ftl', 'foo')
+            LegacySource("test.ftl", "foo")
 
     def test_copy(self):
-        pattern = ('Please use COPY_PATTERN to migrate from Fluent files')
+        pattern = "Please use COPY_PATTERN to migrate from Fluent files"
         with self.assertRaisesRegex(NotSupportedError, pattern):
-            COPY('test.ftl', 'foo')
+            COPY("test.ftl", "foo")
 
     def test_plurals(self):
-        pattern = ('Please use COPY_PATTERN to migrate from Fluent files')
+        pattern = "Please use COPY_PATTERN to migrate from Fluent files"
         with self.assertRaisesRegex(NotSupportedError, pattern):
-            PLURALS(
-                'test.ftl',
-                'deleteAll',
-                VARIABLE_REFERENCE('num')
-            )
+            PLURALS("test.ftl", "deleteAll", VARIABLE_REFERENCE("num"))
 
     def test_replace(self):
-        pattern = ('Please use COPY_PATTERN to migrate from Fluent files')
+        pattern = "Please use COPY_PATTERN to migrate from Fluent files"
         with self.assertRaisesRegex(NotSupportedError, pattern):
-            REPLACE(
-                'test.ftl',
-                'hello',
-                {
-                    '#1': VARIABLE_REFERENCE('username')
-                }
-            )
+            REPLACE("test.ftl", "hello", {"#1": VARIABLE_REFERENCE("username")})
 
     def test_copy_pattern(self):
-        pattern = ('Please use COPY to migrate from legacy files')
+        pattern = "Please use COPY to migrate from legacy files"
         with self.assertRaisesRegex(NotSupportedError, pattern):
-            COPY_PATTERN('test.properties', 'foo')
-        self.assertIsNotNone(COPY_PATTERN('test.ftl', 'foo'))
-        self.assertIsNotNone(COPY_PATTERN('test.ftl', 'foo.bar'))
-        self.assertIsNotNone(COPY_PATTERN('test.ftl', '-foo'))
-        term_attr_pattern = ('Cannot migrate from Term Attributes')
+            COPY_PATTERN("test.properties", "foo")
+        self.assertIsNotNone(COPY_PATTERN("test.ftl", "foo"))
+        self.assertIsNotNone(COPY_PATTERN("test.ftl", "foo.bar"))
+        self.assertIsNotNone(COPY_PATTERN("test.ftl", "-foo"))
+        term_attr_pattern = "Cannot migrate from Term Attributes"
         with self.assertRaisesRegex(NotSupportedError, term_attr_pattern):
-            COPY_PATTERN('test.ftl', '-foo.bar')
+            COPY_PATTERN("test.ftl", "-foo.bar")
 
 
 class MockContext(unittest.TestCase):
@@ -62,7 +55,9 @@ class MockContext(unittest.TestCase):
 
 class TestProperties(MockContext):
     def setUp(self):
-        self.strings = parse(PropertiesParser, '''
+        self.strings = parse(
+            PropertiesParser,
+            """
             foo = Foo
             value-empty =
             value-whitespace =    \n\
@@ -80,140 +75,143 @@ class TestProperties(MockContext):
             newline = \\nnext up is a \\n
 
             html-entity = &lt;&#x21E7;&#x2318;K&gt;
-        ''')
+        """,
+        )
 
     def test_simple_text(self):
-        source = LegacySource('test.properties', 'foo')
+        source = LegacySource("test.properties", "foo")
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, 'Foo')
+        self.assertEqual(element.value, "Foo")
 
     def test_empty_value(self):
-        source = LegacySource('test.properties', 'value-empty')
+        source = LegacySource("test.properties", "value-empty")
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, '')
+        self.assertEqual(element.value, "")
 
     def test_whitespace_value(self):
-        source = LegacySource('test.properties', 'value-whitespace')
+        source = LegacySource("test.properties", "value-whitespace")
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, '')
+        self.assertEqual(element.value, "")
 
     def test_escape_unicode_all(self):
-        source = LegacySource('test.properties', 'unicode-all')
+        source = LegacySource("test.properties", "unicode-all")
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, '@')
+        self.assertEqual(element.value, "@")
 
     def test_escape_unicode_start(self):
-        source = LegacySource('test.properties', 'unicode-start')
+        source = LegacySource("test.properties", "unicode-start")
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, '@Foo')
+        self.assertEqual(element.value, "@Foo")
 
     def test_escape_unicode_middle(self):
-        source = LegacySource('test.properties', 'unicode-middle')
+        source = LegacySource("test.properties", "unicode-middle")
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, 'Foo@Bar')
+        self.assertEqual(element.value, "Foo@Bar")
 
     def test_escape_unicode_end(self):
-        source = LegacySource('test.properties', 'unicode-end')
+        source = LegacySource("test.properties", "unicode-end")
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, 'Foo@')
+        self.assertEqual(element.value, "Foo@")
 
     def test_space_all(self):
-        source = LegacySource('test.properties', 'space-all')
+        source = LegacySource("test.properties", "space-all")
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, '')
+        self.assertEqual(element.value, "")
 
-        source = LegacySource('test.properties', 'space-all', trim=True)
+        source = LegacySource("test.properties", "space-all", trim=True)
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, '')
+        self.assertEqual(element.value, "")
 
-        source = LegacySource('test.properties', 'space-all', trim=False)
+        source = LegacySource("test.properties", "space-all", trim=False)
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, ' ')
+        self.assertEqual(element.value, " ")
 
     def test_space_start(self):
-        source = LegacySource('test.properties', 'space-start')
+        source = LegacySource("test.properties", "space-start")
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, 'Foo')
+        self.assertEqual(element.value, "Foo")
 
-        source = LegacySource('test.properties', 'space-start', trim=True)
+        source = LegacySource("test.properties", "space-start", trim=True)
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, 'Foo')
+        self.assertEqual(element.value, "Foo")
 
-        source = LegacySource('test.properties', 'space-start', trim=False)
+        source = LegacySource("test.properties", "space-start", trim=False)
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, ' Foo')
+        self.assertEqual(element.value, " Foo")
 
     def test_space_middle(self):
-        source = LegacySource('test.properties', 'space-middle')
+        source = LegacySource("test.properties", "space-middle")
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, 'Foo Bar')
+        self.assertEqual(element.value, "Foo Bar")
 
-        source = LegacySource('test.properties', 'space-middle', trim=True)
+        source = LegacySource("test.properties", "space-middle", trim=True)
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, 'Foo Bar')
+        self.assertEqual(element.value, "Foo Bar")
 
-        source = LegacySource('test.properties', 'space-middle', trim=False)
+        source = LegacySource("test.properties", "space-middle", trim=False)
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, 'Foo Bar')
+        self.assertEqual(element.value, "Foo Bar")
 
     def test_space_end(self):
-        source = LegacySource('test.properties', 'space-end')
+        source = LegacySource("test.properties", "space-end")
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, 'Foo')
+        self.assertEqual(element.value, "Foo")
 
-        source = LegacySource('test.properties', 'space-end', trim=True)
+        source = LegacySource("test.properties", "space-end", trim=True)
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, 'Foo')
+        self.assertEqual(element.value, "Foo")
 
-        source = LegacySource('test.properties', 'space-end', trim=False)
+        source = LegacySource("test.properties", "space-end", trim=False)
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, 'Foo ')
+        self.assertEqual(element.value, "Foo ")
 
     def test_newline(self):
-        source = LegacySource('test.properties', 'newline')
+        source = LegacySource("test.properties", "newline")
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, 'next up is a')
+        self.assertEqual(element.value, "next up is a")
 
-        source = LegacySource('test.properties', 'newline', trim=True)
+        source = LegacySource("test.properties", "newline", trim=True)
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, 'next up is a')
+        self.assertEqual(element.value, "next up is a")
 
-        source = LegacySource('test.properties', 'newline', trim=False)
+        source = LegacySource("test.properties", "newline", trim=False)
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, '\nnext up is a \n')
+        self.assertEqual(element.value, "\nnext up is a \n")
 
     def test_html_entity(self):
-        source = LegacySource('test.properties', 'html-entity')
+        source = LegacySource("test.properties", "html-entity")
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, '&lt;&#x21E7;&#x2318;K&gt;')
+        self.assertEqual(element.value, "&lt;&#x21E7;&#x2318;K&gt;")
 
 
 class TestDTD(MockContext):
     def setUp(self):
-        self.strings = parse(DTDParser, '''
+        self.strings = parse(
+            DTDParser,
+            """
             <!ENTITY foo "Foo">
 
             <!ENTITY valueEmpty "">
@@ -234,100 +232,101 @@ class TestDTD(MockContext):
             <!ENTITY shorthexcode "&#x26;">
             <!ENTITY longhexcode "&#x0026;">
             <!ENTITY unknown "&unknownEntity;">
-        ''')
+        """,
+        )
 
     def test_simple_text(self):
-        source = LegacySource('test.dtd', 'foo')
+        source = LegacySource("test.dtd", "foo")
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, 'Foo')
+        self.assertEqual(element.value, "Foo")
 
     def test_empty_value(self):
-        source = LegacySource('test.dtd', 'valueEmpty')
+        source = LegacySource("test.dtd", "valueEmpty")
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, '')
+        self.assertEqual(element.value, "")
 
     def test_whitespace(self):
-        source = LegacySource('test.dtd', 'valueWhitespace')
+        source = LegacySource("test.dtd", "valueWhitespace")
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, '')
+        self.assertEqual(element.value, "")
 
-        source = LegacySource('test.dtd', 'valueWhitespace', trim=True)
+        source = LegacySource("test.dtd", "valueWhitespace", trim=True)
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, '')
+        self.assertEqual(element.value, "")
 
-        source = LegacySource('test.dtd', 'valueWhitespace', trim=False)
+        source = LegacySource("test.dtd", "valueWhitespace", trim=False)
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, '    ')
+        self.assertEqual(element.value, "    ")
 
     def test_multiline1(self):
-        source = LegacySource('test.dtd', 'multiline1')
+        source = LegacySource("test.dtd", "multiline1")
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, 'Foo\nBar')
+        self.assertEqual(element.value, "Foo\nBar")
 
-        source = LegacySource('test.dtd', 'multiline1', trim=True)
+        source = LegacySource("test.dtd", "multiline1", trim=True)
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, 'Foo\nBar')
+        self.assertEqual(element.value, "Foo\nBar")
 
-        source = LegacySource('test.dtd', 'multiline1', trim=False)
+        source = LegacySource("test.dtd", "multiline1", trim=False)
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, 'Foo   \n    Bar\n')
+        self.assertEqual(element.value, "Foo   \n    Bar\n")
 
     def test_multiline2(self):
-        source = LegacySource('test.dtd', 'multiline2')
+        source = LegacySource("test.dtd", "multiline2")
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, 'Foo\nBar')
+        self.assertEqual(element.value, "Foo\nBar")
 
-        source = LegacySource('test.dtd', 'multiline2', trim=True)
+        source = LegacySource("test.dtd", "multiline2", trim=True)
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, 'Foo\nBar')
+        self.assertEqual(element.value, "Foo\nBar")
 
-        source = LegacySource('test.dtd', 'multiline2', trim=False)
+        source = LegacySource("test.dtd", "multiline2", trim=False)
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, '\n    Foo   \n      Bar\n    ')
+        self.assertEqual(element.value, "\n    Foo   \n      Bar\n    ")
 
     def test_backslash_unicode_escape(self):
-        source = LegacySource('test.dtd', 'unicodeEscape')
+        source = LegacySource("test.dtd", "unicodeEscape")
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, 'Foo\\u0020Bar')
+        self.assertEqual(element.value, "Foo\\u0020Bar")
 
     def test_named_entity(self):
-        source = LegacySource('test.dtd', 'named')
+        source = LegacySource("test.dtd", "named")
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, '&')
+        self.assertEqual(element.value, "&")
 
     def test_decimal_entity(self):
-        source = LegacySource('test.dtd', 'decimal')
+        source = LegacySource("test.dtd", "decimal")
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, '&')
+        self.assertEqual(element.value, "&")
 
     def test_shorthex_entity(self):
-        source = LegacySource('test.dtd', 'shorthexcode')
+        source = LegacySource("test.dtd", "shorthexcode")
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, '&')
+        self.assertEqual(element.value, "&")
 
     def test_longhex_entity(self):
-        source = LegacySource('test.dtd', 'longhexcode')
+        source = LegacySource("test.dtd", "longhexcode")
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, '&')
+        self.assertEqual(element.value, "&")
 
     def test_unknown_entity(self):
-        source = LegacySource('test.dtd', 'unknown')
+        source = LegacySource("test.dtd", "unknown")
         element = source(self)
         self.assertIsInstance(element, FTL.TextElement)
-        self.assertEqual(element.value, '&unknownEntity;')
+        self.assertEqual(element.value, "&unknownEntity;")

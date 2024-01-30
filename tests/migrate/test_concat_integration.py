@@ -23,109 +23,110 @@ class MockContext(unittest.TestCase):
 class TestConcatLiteral(MockContext):
     def setUp(self):
         self.evaluator = Evaluator(self)
-        self.strings = parse(DTDParser, '''
+        self.strings = parse(
+            DTDParser,
+            """
             <!ENTITY update.failed.start        "Update failed. ">
             <!ENTITY update.failed.linkText     "Download manually">
             <!ENTITY update.failed.end          "!">
-        ''')
+        """,
+        )
 
     def test_concat_literal(self):
         transform = CONCAT(
-            COPY('test.properties', 'update.failed.start'),
-            FTL.TextElement('<a>'),
-            COPY('test.properties', 'update.failed.linkText'),
-            FTL.TextElement('</a>'),
-            COPY('test.properties', 'update.failed.end'),
+            COPY("test.properties", "update.failed.start"),
+            FTL.TextElement("<a>"),
+            COPY("test.properties", "update.failed.linkText"),
+            FTL.TextElement("</a>"),
+            COPY("test.properties", "update.failed.end"),
         )
 
         self.assertEqual(
             self.evaluate(transform).to_json(),
-            ftl_pattern_to_json('Update failed. <a>Download manually</a>!')
+            ftl_pattern_to_json("Update failed. <a>Download manually</a>!"),
         )
 
 
 class TestConcatInterpolate(MockContext):
     def setUp(self):
         self.evaluator = Evaluator(self)
-        self.strings = parse(DTDParser, '''
+        self.strings = parse(
+            DTDParser,
+            """
             <!ENTITY channel.description.start  "You are on the ">
             <!ENTITY channel.description.end    " channel.">
-        ''')
+        """,
+        )
 
     def test_concat_placeable(self):
         transform = CONCAT(
-            COPY('test.dtd', 'channel.description.start'),
-            FTL.Placeable(VARIABLE_REFERENCE('channelname')),
-            COPY('test.dtd', 'channel.description.end'),
+            COPY("test.dtd", "channel.description.start"),
+            FTL.Placeable(VARIABLE_REFERENCE("channelname")),
+            COPY("test.dtd", "channel.description.end"),
         )
 
         self.assertEqual(
             self.evaluate(transform).to_json(),
-            ftl_pattern_to_json('You are on the { $channelname } channel.')
+            ftl_pattern_to_json("You are on the { $channelname } channel."),
         )
 
     def test_concat_expression(self):
         transform = CONCAT(
-            COPY('test.dtd', 'channel.description.start'),
-            VARIABLE_REFERENCE('channelname'),
-            COPY('test.dtd', 'channel.description.end'),
+            COPY("test.dtd", "channel.description.start"),
+            VARIABLE_REFERENCE("channelname"),
+            COPY("test.dtd", "channel.description.end"),
         )
 
         self.assertEqual(
             self.evaluate(transform).to_json(),
-            ftl_pattern_to_json('You are on the { $channelname } channel.')
+            ftl_pattern_to_json("You are on the { $channelname } channel."),
         )
 
 
 class TestConcatReplace(MockContext):
     def setUp(self):
         self.evaluator = Evaluator(self)
-        self.strings = parse(DTDParser, '''
+        self.strings = parse(
+            DTDParser,
+            """
             <!ENTITY community.start       "&brandShortName; is designed by ">
             <!ENTITY community.mozillaLink "&vendorShortName;">
             <!ENTITY community.middle      ", a ">
             <!ENTITY community.creditsLink "global community">
             <!ENTITY community.end         " working together to…">
-        ''')
+        """,
+        )
 
     def test_concat_replace(self):
         transform = CONCAT(
             REPLACE(
-                'test.dtd',
-                'community.start',
-                {
-                    '&brandShortName;': MESSAGE_REFERENCE(
-                        'brand-short-name'
-                    )
-                }
+                "test.dtd",
+                "community.start",
+                {"&brandShortName;": MESSAGE_REFERENCE("brand-short-name")},
             ),
-            FTL.TextElement('<a>'),
+            FTL.TextElement("<a>"),
             REPLACE(
-                'test.properties',
-                'community.mozillaLink',
-                {
-                    '&vendorShortName;': MESSAGE_REFERENCE(
-                        'vendor-short-name'
-                    )
-                }
+                "test.properties",
+                "community.mozillaLink",
+                {"&vendorShortName;": MESSAGE_REFERENCE("vendor-short-name")},
             ),
-            FTL.TextElement('</a>'),
-            COPY('test.dtd', 'community.middle'),
-            FTL.TextElement('<a>'),
-            COPY('test.dtd', 'community.creditsLink'),
-            FTL.TextElement('</a>'),
-            COPY('test.dtd', 'community.end')
+            FTL.TextElement("</a>"),
+            COPY("test.dtd", "community.middle"),
+            FTL.TextElement("<a>"),
+            COPY("test.dtd", "community.creditsLink"),
+            FTL.TextElement("</a>"),
+            COPY("test.dtd", "community.end"),
         )
 
         self.assertEqual(
             self.evaluate(transform).to_json(),
             ftl_pattern_to_json(
-                '{ brand-short-name } is designed by '
-                '<a>{ vendor-short-name }</a>, a <a>global community</a> '
-                'working together to…'
-            )
+                "{ brand-short-name } is designed by "
+                "<a>{ vendor-short-name }</a>, a <a>global community</a> "
+                "working together to…"
+            ),
         )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

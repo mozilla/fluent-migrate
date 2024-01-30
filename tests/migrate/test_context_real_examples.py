@@ -5,9 +5,7 @@ import fluent.syntax.ast as FTL
 from fluent.migrate.util import ftl_resource_to_json, to_json
 from fluent.migrate.context import MigrationContext
 from fluent.migrate.helpers import VARIABLE_REFERENCE, MESSAGE_REFERENCE
-from fluent.migrate.transforms import (
-    CONCAT, COPY, PLURALS, REPLACE_IN_TEXT, REPLACE
-)
+from fluent.migrate.transforms import CONCAT, COPY, PLURALS, REPLACE_IN_TEXT, REPLACE
 
 
 def here(*parts):
@@ -18,185 +16,140 @@ def here(*parts):
 class TestMergeAboutDownloads(unittest.TestCase):
     def setUp(self):
         self.ctx = MigrationContext(
-            locale='pl',
-            reference_dir=here('fixtures/en-US'),
-            localization_dir=here('fixtures/pl')
+            locale="pl",
+            reference_dir=here("fixtures/en-US"),
+            localization_dir=here("fixtures/pl"),
         )
 
-        self.ctx.add_transforms('aboutDownloads.ftl', 'aboutDownloads.ftl', [
-            FTL.Message(
-                id=FTL.Identifier('title'),
-                value=COPY(
-                    'aboutDownloads.dtd',
-                    'aboutDownloads.title'
-                )
-            ),
-            FTL.Message(
-                id=FTL.Identifier('header'),
-                value=COPY(
-                    'aboutDownloads.dtd',
-                    'aboutDownloads.header'
-                )
-            ),
-            FTL.Message(
-                id=FTL.Identifier('empty'),
-                value=COPY(
-                    'aboutDownloads.dtd',
-                    'aboutDownloads.empty'
-                )
-            ),
-            FTL.Message(
-                id=FTL.Identifier('open-menuitem'),
-                attributes=[
-                    FTL.Attribute(
-                        FTL.Identifier('label'),
-                        COPY(
-                            'aboutDownloads.dtd',
-                            'aboutDownloads.open'
+        self.ctx.add_transforms(
+            "aboutDownloads.ftl",
+            "aboutDownloads.ftl",
+            [
+                FTL.Message(
+                    id=FTL.Identifier("title"),
+                    value=COPY("aboutDownloads.dtd", "aboutDownloads.title"),
+                ),
+                FTL.Message(
+                    id=FTL.Identifier("header"),
+                    value=COPY("aboutDownloads.dtd", "aboutDownloads.header"),
+                ),
+                FTL.Message(
+                    id=FTL.Identifier("empty"),
+                    value=COPY("aboutDownloads.dtd", "aboutDownloads.empty"),
+                ),
+                FTL.Message(
+                    id=FTL.Identifier("open-menuitem"),
+                    attributes=[
+                        FTL.Attribute(
+                            FTL.Identifier("label"),
+                            COPY("aboutDownloads.dtd", "aboutDownloads.open"),
                         )
-                    )
-                ]
-            ),
-            FTL.Message(
-                id=FTL.Identifier('retry-menuitem'),
-                attributes=[
-                    FTL.Attribute(
-                        FTL.Identifier('label'),
-                        COPY(
-                            'aboutDownloads.dtd',
-                            'aboutDownloads.retry'
+                    ],
+                ),
+                FTL.Message(
+                    id=FTL.Identifier("retry-menuitem"),
+                    attributes=[
+                        FTL.Attribute(
+                            FTL.Identifier("label"),
+                            COPY("aboutDownloads.dtd", "aboutDownloads.retry"),
                         )
-                    )
-                ]
-            ),
-            FTL.Message(
-                id=FTL.Identifier('remove-menuitem'),
-                attributes=[
-                    FTL.Attribute(
-                        FTL.Identifier('label'),
-                        COPY(
-                            'aboutDownloads.dtd',
-                            'aboutDownloads.remove'
+                    ],
+                ),
+                FTL.Message(
+                    id=FTL.Identifier("remove-menuitem"),
+                    attributes=[
+                        FTL.Attribute(
+                            FTL.Identifier("label"),
+                            COPY("aboutDownloads.dtd", "aboutDownloads.remove"),
                         )
-                    )
-                ]
-            ),
-            FTL.Message(
-                id=FTL.Identifier('pause-menuitem'),
-                attributes=[
-                    FTL.Attribute(
-                        FTL.Identifier('label'),
-                        COPY(
-                            'aboutDownloads.dtd',
-                            'aboutDownloads.pause'
+                    ],
+                ),
+                FTL.Message(
+                    id=FTL.Identifier("pause-menuitem"),
+                    attributes=[
+                        FTL.Attribute(
+                            FTL.Identifier("label"),
+                            COPY("aboutDownloads.dtd", "aboutDownloads.pause"),
                         )
-                    )
-                ]
-            ),
-            FTL.Message(
-                id=FTL.Identifier('resume-menuitem'),
-                attributes=[
-                    FTL.Attribute(
-                        FTL.Identifier('label'),
-                        COPY(
-                            'aboutDownloads.dtd',
-                            'aboutDownloads.resume'
+                    ],
+                ),
+                FTL.Message(
+                    id=FTL.Identifier("resume-menuitem"),
+                    attributes=[
+                        FTL.Attribute(
+                            FTL.Identifier("label"),
+                            COPY("aboutDownloads.dtd", "aboutDownloads.resume"),
                         )
-                    )
-                ]
-            ),
-            FTL.Message(
-                id=FTL.Identifier('cancel-menuitem'),
-                attributes=[
-                    FTL.Attribute(
-                        FTL.Identifier('label'),
-                        COPY(
-                            'aboutDownloads.dtd',
-                            'aboutDownloads.cancel'
+                    ],
+                ),
+                FTL.Message(
+                    id=FTL.Identifier("cancel-menuitem"),
+                    attributes=[
+                        FTL.Attribute(
+                            FTL.Identifier("label"),
+                            COPY("aboutDownloads.dtd", "aboutDownloads.cancel"),
                         )
-                    )
-                ]
-            ),
-            FTL.Message(
-                id=FTL.Identifier('remove-all-menuitem'),
-                attributes=[
-                    FTL.Attribute(
-                        FTL.Identifier('label'),
-                        COPY(
-                            'aboutDownloads.dtd',
-                            'aboutDownloads.removeAll'
+                    ],
+                ),
+                FTL.Message(
+                    id=FTL.Identifier("remove-all-menuitem"),
+                    attributes=[
+                        FTL.Attribute(
+                            FTL.Identifier("label"),
+                            COPY("aboutDownloads.dtd", "aboutDownloads.removeAll"),
                         )
-                    )
-                ]
-            ),
-            FTL.Message(
-                id=FTL.Identifier('delete-all-title'),
-                value=COPY(
-                    'aboutDownloads.properties',
-                    'downloadAction.deleteAll'
-                )
-            ),
-            FTL.Message(
-                id=FTL.Identifier('delete-all-message'),
-                value=PLURALS(
-                    'aboutDownloads.properties',
-                    'downloadMessage.deleteAll',
-                    VARIABLE_REFERENCE('num'),
-                    lambda text: REPLACE_IN_TEXT(
-                        text,
-                        {
-                            '#1': VARIABLE_REFERENCE('num')
-                        }
-                    )
-                )
-            ),
-            FTL.Message(
-                id=FTL.Identifier('download-state-downloading'),
-                value=COPY(
-                    'aboutDownloads.properties',
-                    'downloadState.downloading'
-                )
-            ),
-            FTL.Message(
-                id=FTL.Identifier('download-state-canceled'),
-                value=COPY(
-                    'aboutDownloads.properties',
-                    'downloadState.canceled'
-                )
-            ),
-            FTL.Message(
-                id=FTL.Identifier('download-state-failed'),
-                value=COPY(
-                    'aboutDownloads.properties',
-                    'downloadState.failed'
-                )
-            ),
-            FTL.Message(
-                id=FTL.Identifier('download-state-paused'),
-                value=COPY(
-                    'aboutDownloads.properties',
-                    'downloadState.paused'
-                )
-            ),
-            FTL.Message(
-                id=FTL.Identifier('download-state-starting'),
-                value=COPY(
-                    'aboutDownloads.properties',
-                    'downloadState.starting'
-                )
-            ),
-            FTL.Message(
-                id=FTL.Identifier('download-size-unknown'),
-                value=COPY(
-                    'aboutDownloads.properties',
-                    'downloadState.unknownSize'
-                )
-            ),
-        ])
+                    ],
+                ),
+                FTL.Message(
+                    id=FTL.Identifier("delete-all-title"),
+                    value=COPY("aboutDownloads.properties", "downloadAction.deleteAll"),
+                ),
+                FTL.Message(
+                    id=FTL.Identifier("delete-all-message"),
+                    value=PLURALS(
+                        "aboutDownloads.properties",
+                        "downloadMessage.deleteAll",
+                        VARIABLE_REFERENCE("num"),
+                        lambda text: REPLACE_IN_TEXT(
+                            text, {"#1": VARIABLE_REFERENCE("num")}
+                        ),
+                    ),
+                ),
+                FTL.Message(
+                    id=FTL.Identifier("download-state-downloading"),
+                    value=COPY(
+                        "aboutDownloads.properties", "downloadState.downloading"
+                    ),
+                ),
+                FTL.Message(
+                    id=FTL.Identifier("download-state-canceled"),
+                    value=COPY("aboutDownloads.properties", "downloadState.canceled"),
+                ),
+                FTL.Message(
+                    id=FTL.Identifier("download-state-failed"),
+                    value=COPY("aboutDownloads.properties", "downloadState.failed"),
+                ),
+                FTL.Message(
+                    id=FTL.Identifier("download-state-paused"),
+                    value=COPY("aboutDownloads.properties", "downloadState.paused"),
+                ),
+                FTL.Message(
+                    id=FTL.Identifier("download-state-starting"),
+                    value=COPY("aboutDownloads.properties", "downloadState.starting"),
+                ),
+                FTL.Message(
+                    id=FTL.Identifier("download-size-unknown"),
+                    value=COPY(
+                        "aboutDownloads.properties", "downloadState.unknownSize"
+                    ),
+                ),
+            ],
+        )
 
     def test_merge_context_all_messages(self):
         expected = {
-            'aboutDownloads.ftl': ftl_resource_to_json('''
+            "aboutDownloads.ftl": ftl_resource_to_json(
+                """
         # This Source Code Form is subject to the terms of the Mozilla Public
         # License, v. 2.0. If a copy of the MPL was not distributed with this
         # file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -234,24 +187,23 @@ class TestMergeAboutDownloads(unittest.TestCase):
         download-state-paused = Wstrzymane
         download-state-starting = Rozpoczynanie…
         download-size-unknown = Nieznany rozmiar
-            ''')
+            """
+            )
         }
 
-        self.assertDictEqual(
-            to_json(self.ctx.merge_changeset()),
-            expected
-        )
+        self.assertDictEqual(to_json(self.ctx.merge_changeset()), expected)
 
     def test_merge_context_some_messages(self):
         changeset = {
-            ('aboutDownloads.dtd', 'aboutDownloads.title'),
-            ('aboutDownloads.dtd', 'aboutDownloads.header'),
-            ('aboutDownloads.properties', 'downloadState.downloading'),
-            ('aboutDownloads.properties', 'downloadState.canceled'),
+            ("aboutDownloads.dtd", "aboutDownloads.title"),
+            ("aboutDownloads.dtd", "aboutDownloads.header"),
+            ("aboutDownloads.properties", "downloadState.downloading"),
+            ("aboutDownloads.properties", "downloadState.canceled"),
         }
 
         expected = {
-            'aboutDownloads.ftl': ftl_resource_to_json('''
+            "aboutDownloads.ftl": ftl_resource_to_json(
+                """
         # This Source Code Form is subject to the terms of the Mozilla Public
         # License, v. 2.0. If a copy of the MPL was not distributed with this
         # file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -260,13 +212,11 @@ class TestMergeAboutDownloads(unittest.TestCase):
         header = Twoje pobrane pliki
         download-state-downloading = Pobieranie…
         download-state-canceled = Anulowane
-            ''')
+            """
+            )
         }
 
-        self.assertDictEqual(
-            to_json(self.ctx.merge_changeset(changeset)),
-            expected
-        )
+        self.assertDictEqual(to_json(self.ctx.merge_changeset(changeset)), expected)
 
 
 class TestMergeAboutDialog(unittest.TestCase):
@@ -274,65 +224,66 @@ class TestMergeAboutDialog(unittest.TestCase):
 
     def setUp(self):
         self.ctx = MigrationContext(
-            locale='pl',
-            reference_dir=here('fixtures/en-US'),
-            localization_dir=here('fixtures/pl')
+            locale="pl",
+            reference_dir=here("fixtures/en-US"),
+            localization_dir=here("fixtures/pl"),
         )
 
-        self.ctx.add_transforms('aboutDialog.ftl', 'aboutDialog.ftl', [
-            FTL.Message(
-                id=FTL.Identifier('update-failed'),
-                value=CONCAT(
-                    COPY('aboutDialog.dtd', 'update.failed.start'),
-                    FTL.TextElement('<a>'),
-                    COPY('aboutDialog.dtd', 'update.failed.linkText'),
-                    FTL.TextElement('</a>'),
-                    COPY('aboutDialog.dtd', 'update.failed.end'),
-                )
-            ),
-            FTL.Message(
-                id=FTL.Identifier('channel-desc'),
-                value=CONCAT(
-                    COPY('aboutDialog.dtd', 'channel.description.start'),
-                    VARIABLE_REFERENCE('channelname'),
-                    COPY('aboutDialog.dtd', 'channel.description.end'),
-                )
-            ),
-            FTL.Message(
-                id=FTL.Identifier('community'),
-                value=CONCAT(
-                    REPLACE(
-                        'aboutDialog.dtd',
-                        'community.start',
-                        {
-                            '&brandShortName;': MESSAGE_REFERENCE(
-                                'brand-short-name'
-                            )
-                        }
+        self.ctx.add_transforms(
+            "aboutDialog.ftl",
+            "aboutDialog.ftl",
+            [
+                FTL.Message(
+                    id=FTL.Identifier("update-failed"),
+                    value=CONCAT(
+                        COPY("aboutDialog.dtd", "update.failed.start"),
+                        FTL.TextElement("<a>"),
+                        COPY("aboutDialog.dtd", "update.failed.linkText"),
+                        FTL.TextElement("</a>"),
+                        COPY("aboutDialog.dtd", "update.failed.end"),
                     ),
-                    FTL.TextElement('<a>'),
-                    REPLACE(
-                        'aboutDialog.dtd',
-                        'community.mozillaLink',
-                        {
-                            '&vendorShortName;': MESSAGE_REFERENCE(
-                                'vendor-short-name'
-                            )
-                        }
+                ),
+                FTL.Message(
+                    id=FTL.Identifier("channel-desc"),
+                    value=CONCAT(
+                        COPY("aboutDialog.dtd", "channel.description.start"),
+                        VARIABLE_REFERENCE("channelname"),
+                        COPY("aboutDialog.dtd", "channel.description.end"),
                     ),
-                    FTL.TextElement('</a>'),
-                    COPY('aboutDialog.dtd', 'community.middle'),
-                    FTL.TextElement('<a>'),
-                    COPY('aboutDialog.dtd', 'community.creditsLink'),
-                    FTL.TextElement('</a>'),
-                    COPY('aboutDialog.dtd', 'community.end')
-                )
-            ),
-        ])
+                ),
+                FTL.Message(
+                    id=FTL.Identifier("community"),
+                    value=CONCAT(
+                        REPLACE(
+                            "aboutDialog.dtd",
+                            "community.start",
+                            {"&brandShortName;": MESSAGE_REFERENCE("brand-short-name")},
+                        ),
+                        FTL.TextElement("<a>"),
+                        REPLACE(
+                            "aboutDialog.dtd",
+                            "community.mozillaLink",
+                            {
+                                "&vendorShortName;": MESSAGE_REFERENCE(
+                                    "vendor-short-name"
+                                )
+                            },
+                        ),
+                        FTL.TextElement("</a>"),
+                        COPY("aboutDialog.dtd", "community.middle"),
+                        FTL.TextElement("<a>"),
+                        COPY("aboutDialog.dtd", "community.creditsLink"),
+                        FTL.TextElement("</a>"),
+                        COPY("aboutDialog.dtd", "community.end"),
+                    ),
+                ),
+            ],
+        )
 
     def test_merge_context_all_messages(self):
         expected = {
-            'aboutDialog.ftl': ftl_resource_to_json('''
+            "aboutDialog.ftl": ftl_resource_to_json(
+                """
         # This Source Code Form is subject to the terms of the Mozilla Public
         # License, v. 2.0. If a copy of the MPL was not distributed with this
         # file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -342,43 +293,37 @@ class TestMergeAboutDialog(unittest.TestCase):
         community = Program { brand-short-name } został opracowany przez \
 <a>organizację { vendor-short-name }</a>, która jest <a>globalną \
 społecznością</a>, starającą się zapewnić, by…
-            ''')
+            """
+            )
         }
 
-        self.assertDictEqual(
-            to_json(self.ctx.merge_changeset()),
-            expected
-        )
+        self.assertDictEqual(to_json(self.ctx.merge_changeset()), expected)
 
     def test_merge_context_some_messages(self):
         changeset = {
-            ('aboutDialog.dtd', 'update.failed.start'),
-            ('aboutDialog.dtd', 'update.failed.linkText'),
-            ('aboutDialog.dtd', 'update.failed.end'),
+            ("aboutDialog.dtd", "update.failed.start"),
+            ("aboutDialog.dtd", "update.failed.linkText"),
+            ("aboutDialog.dtd", "update.failed.end"),
         }
 
         expected = {
-            'aboutDialog.ftl': ftl_resource_to_json('''
+            "aboutDialog.ftl": ftl_resource_to_json(
+                """
         # This Source Code Form is subject to the terms of the Mozilla Public
         # License, v. 2.0. If a copy of the MPL was not distributed with this
         # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
         update-failed = Aktualizacja się nie powiodła. <a>Pobierz</a>.
-            ''')
+            """
+            )
         }
 
-        self.assertDictEqual(
-            to_json(self.ctx.merge_changeset(changeset)),
-            expected
-        )
+        self.assertDictEqual(to_json(self.ctx.merge_changeset(changeset)), expected)
 
     def test_merge_context_too_few_messages(self):
         changeset = {
-            ('aboutDialog.dtd', 'update.failed.start'),
-            ('aboutDialog.dtd', 'update.failed.linkText'),
+            ("aboutDialog.dtd", "update.failed.start"),
+            ("aboutDialog.dtd", "update.failed.linkText"),
         }
 
-        self.assertDictEqual(
-            to_json(self.ctx.merge_changeset(changeset)),
-            {}
-        )
+        self.assertDictEqual(to_json(self.ctx.merge_changeset(changeset)), {})

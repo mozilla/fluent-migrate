@@ -13,9 +13,9 @@ from ._context import InternalContext
 
 
 __all__ = [
-    'EmptyLocalizationError',
-    'UnreadableReferenceError',
-    'MigrationContext',
+    "EmptyLocalizationError",
+    "UnreadableReferenceError",
+    "MigrationContext",
 ]
 
 
@@ -51,8 +51,10 @@ class MigrationContext(InternalContext):
         self, locale, reference_dir, localization_dir, enforce_translated=False
     ):
         super().__init__(
-            locale, reference_dir, localization_dir,
-            enforce_translated=enforce_translated
+            locale,
+            reference_dir,
+            localization_dir,
+            enforce_translated=enforce_translated,
         )
         self.locale = locale
         # Paths to directories with input data, relative to CWD.
@@ -82,6 +84,7 @@ class MigrationContext(InternalContext):
         For transforms that merely copy legacy messages or Fluent patterns,
         using `fluent.migrate.helpers.transforms_from` is recommended.
         """
+
         def get_sources(acc, cur):
             if isinstance(cur, Source):
                 acc.add((cur.path, cur.key))
@@ -93,9 +96,7 @@ class MigrationContext(InternalContext):
             reference_ast = self.reference_resources.get(target)
             if reference_ast is None:
                 reference_ast = FTL.Resource()
-            reference_ast.body.extend(
-                skeleton(transform) for transform in transforms
-            )
+            reference_ast.body.extend(skeleton(transform) for transform in transforms)
         else:
             reference_ast = self.read_reference_ftl(reference)
         self.reference_resources[target] = reference_ast
@@ -114,10 +115,12 @@ class MigrationContext(InternalContext):
             if self.reference_dir is None:
                 continue
             if get_message(reference_ast.body, ident) is None:
-                logger = logging.getLogger('migrate')
+                logger = logging.getLogger("migrate")
                 logger.warning(
                     '{} "{}" was not found in {}'.format(
-                        type(node).__name__, ident, reference))
+                        type(node).__name__, ident, reference
+                    )
+                )
 
         # Keep track of localization resource paths which were defined as
         # sources in the transforms.
@@ -134,8 +137,8 @@ class MigrationContext(InternalContext):
         # However, if all legacy resources are missing, bail out early. There
         # are no translations to migrate. We'd also get errors in hg annotate.
         if len(expected_paths) > 0 and len(self.localization_resources) == 0:
-            error_message = 'No localization files were found'
-            logging.getLogger('migrate').error(error_message)
+            error_message = "No localization files were found"
+            logging.getLogger("migrate").error(error_message)
             raise EmptyLocalizationError(error_message)
 
         # Add the current transforms to any other transforms added earlier for
