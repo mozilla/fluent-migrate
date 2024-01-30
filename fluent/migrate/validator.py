@@ -19,12 +19,14 @@ class BadContextAPIException(Exception):
 
 
 def process_assign(node, context):
-    if isinstance(node.value, ast.Str):
-        val = node.value.s
+    if isinstance(node.value, ast.Constant):
+        val = node.value.value
     elif isinstance(node.value, ast.Name):
         val = context.get(node.value.id)
     elif isinstance(node.value, ast.Call):
         val = node.value
+    else:
+        val = None
     if val is None:
         return
     for target in node.targets:
@@ -184,8 +186,8 @@ class MigrateAnalyzer(ast.NodeVisitor):
         in_reference = node.args[1]
         if isinstance(in_reference, ast.Name):
             in_reference = self.global_assigns.get(in_reference.id)
-        if isinstance(in_reference, ast.Str):
-            in_reference = in_reference.s
+        if isinstance(in_reference, ast.Constant):
+            in_reference = in_reference.value
         if not isinstance(in_reference, str):
             self.issues.append(
                 {
@@ -212,8 +214,8 @@ class MigrateAnalyzer(ast.NodeVisitor):
         if not self.check_arguments(
             node,
             (
-                (ast.Str, ast.Name),
-                (ast.Str, ast.Name),
+                (ast.Constant, ast.Name),
+                (ast.Constant, ast.Name),
             ),
             allow_more=True,
             check_kwargs=False,
@@ -221,8 +223,8 @@ class MigrateAnalyzer(ast.NodeVisitor):
             self.issues.append({"msg": bad_args, "line": node.lineno})
             return
         path = node.args[0]
-        if isinstance(path, ast.Str):
-            path = path.s
+        if isinstance(path, ast.Constant):
+            path = path.value
         if isinstance(path, ast.Name):
             path = self.global_assigns.get(path.id)
         if not isinstance(path, PATH_TYPES):
@@ -230,7 +232,7 @@ class MigrateAnalyzer(ast.NodeVisitor):
 
     def call_helpers_transforms_from(self, node):
         args_msg = "Expected arguments to transforms_from: " "str, **substitions"
-        if not self.check_arguments(node, (ast.Str,), check_kwargs=False):
+        if not self.check_arguments(node, (ast.Constant,), check_kwargs=False):
             self.issues.append(
                 {
                     "msg": args_msg,
@@ -242,8 +244,8 @@ class MigrateAnalyzer(ast.NodeVisitor):
         found_bad_keywords = False
         for keyword in node.keywords:
             v = keyword.value
-            if isinstance(v, ast.Str):
-                v = v.s
+            if isinstance(v, ast.Constant):
+                v = v.value
             if isinstance(v, ast.Name):
                 v = self.global_assigns.get(v.id)
             if isinstance(v, ast.Call):
@@ -262,7 +264,7 @@ class MigrateAnalyzer(ast.NodeVisitor):
         if found_bad_keywords:
             return
         try:
-            transforms = transforms_from(node.args[0].s, **kwargs)
+            transforms = transforms_from(node.args[0].value, **kwargs)
         except MigrationError as e:
             self.issues.append(
                 {

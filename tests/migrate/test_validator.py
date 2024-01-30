@@ -464,33 +464,35 @@ class TestMigrateAnalyzer_check_arguments(unittest.TestCase):
     def test_types(self):
         v = validator.MigrateAnalyzer("foo", {})
         call = ast.parse('foo("s")').body[0].value
-        self.assertTrue(v.check_arguments(call, (ast.Str,)))
-        self.assertTrue(v.check_arguments(call, ((ast.Str, ast.Name),)))
+        self.assertTrue(v.check_arguments(call, (ast.Constant,)))
+        self.assertTrue(v.check_arguments(call, ((ast.Constant, ast.Name),)))
         self.assertFalse(v.check_arguments(call, (ast.Name,)))
 
     def test_argument_count(self):
         v = validator.MigrateAnalyzer("foo", {})
         call = ast.parse('foo("s")').body[0].value
-        self.assertFalse(v.check_arguments(call, (ast.Str, ast.Str)))
-        self.assertFalse(v.check_arguments(call, (ast.Str, ast.Str), allow_more=True))
+        self.assertFalse(v.check_arguments(call, (ast.Constant, ast.Constant)))
+        self.assertFalse(
+            v.check_arguments(call, (ast.Constant, ast.Constant), allow_more=True)
+        )
         self.assertFalse(v.check_arguments(call, tuple()))
         self.assertTrue(v.check_arguments(call, tuple(), allow_more=True))
 
     def test_kwargs(self):
         v = validator.MigrateAnalyzer("foo", {})
         call = ast.parse('foo("s", some="stuff")').body[0].value
-        self.assertFalse(v.check_arguments(call, (ast.Str,)))
-        self.assertTrue(v.check_arguments(call, (ast.Str,), check_kwargs=False))
+        self.assertFalse(v.check_arguments(call, (ast.Constant,)))
+        self.assertTrue(v.check_arguments(call, (ast.Constant,), check_kwargs=False))
         call = ast.parse('foo("s", **kwargs)').body[0].value
-        self.assertFalse(v.check_arguments(call, (ast.Str,)))
-        self.assertTrue(v.check_arguments(call, (ast.Str,), check_kwargs=False))
+        self.assertFalse(v.check_arguments(call, (ast.Constant,)))
+        self.assertTrue(v.check_arguments(call, (ast.Constant,), check_kwargs=False))
 
     def test_starargs(self):
         v = validator.MigrateAnalyzer("foo", {})
         call = ast.parse("foo(*args)").body[0].value
-        self.assertFalse(v.check_arguments(call, (ast.Str,)))
-        self.assertFalse(v.check_arguments(call, (ast.Str,), check_kwargs=False))
-        self.assertFalse(v.check_arguments(call, (ast.Str,), allow_more=True))
+        self.assertFalse(v.check_arguments(call, (ast.Constant,)))
+        self.assertFalse(v.check_arguments(call, (ast.Constant,), check_kwargs=False))
+        self.assertFalse(v.check_arguments(call, (ast.Constant,), allow_more=True))
 
 
 class TestTransformsInspector(unittest.TestCase):
