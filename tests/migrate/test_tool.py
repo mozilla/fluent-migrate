@@ -11,10 +11,10 @@ class TestSerialize(unittest.TestCase):
     def setUp(self):
         self.root = tempfile.mkdtemp()
         self.migrator = Migrator(
-            'de',
-            os.path.join(self.root, 'reference'),
-            os.path.join(self.root, 'localization'),
-            False
+            "de",
+            os.path.join(self.root, "reference"),
+            os.path.join(self.root, "localization"),
+            False,
         )
 
     def tearDown(self):
@@ -27,16 +27,20 @@ class TestSerialize(unittest.TestCase):
 
     def test_dry(self):
         self.migrator.dry_run = True
-        self.migrator.serialize_changeset({
-            'd/f': 'a line of text\n',
-        })
+        self.migrator.serialize_changeset(
+            {
+                "d/f": "a line of text\n",
+            }
+        )
         self.assertEqual(os.listdir(self.root), [])
 
     def test_wet(self):
-        self.migrator.serialize_changeset({
-            'd1/f1': 'a line of text\n',
-            'd2/f2': 'a different line of text\n',
-        })
+        self.migrator.serialize_changeset(
+            {
+                "d1/f1": "a line of text\n",
+                "d2/f2": "a different line of text\n",
+            }
+        )
         # Walk our serialized localization dir, but
         # make the directory be relative to our root.
         walked = sorted(
@@ -46,11 +50,11 @@ class TestSerialize(unittest.TestCase):
         self.assertEqual(
             walked,
             [
-                ('.', ['localization'], []),
-                ('localization', ['d1', 'd2'], []),
-                ('localization/d1', [], ['f1']),
-                ('localization/d2', [], ['f2']),
-            ]
+                (".", ["localization"], []),
+                ("localization", ["d1", "d2"], []),
+                ("localization/d1", [], ["f1"]),
+                ("localization/d2", [], ["f2"]),
+            ],
         )
 
 
@@ -58,20 +62,20 @@ class TestCommit(unittest.TestCase):
     def setUp(self):
         self.root = tempfile.mkdtemp()
         self.migrator = Migrator(
-            'de',
-            os.path.join(self.root, 'reference'),
-            os.path.join(self.root, 'localization'),
-            False
+            "de",
+            os.path.join(self.root, "reference"),
+            os.path.join(self.root, "localization"),
+            False,
         )
-        loc_dir = os.path.join(self.migrator.localization_dir, 'd1')
+        loc_dir = os.path.join(self.migrator.localization_dir, "d1")
         os.makedirs(loc_dir)
-        with open(os.path.join(loc_dir, 'f1'), 'w') as f:
-            f.write('first line\n')
+        with open(os.path.join(loc_dir, "f1"), "w") as f:
+            f.write("first line\n")
         client = hglib.init(self.migrator.localization_dir)
         client.open()
         client.commit(
-            message='Initial commit',
-            user='Jane',
+            message="Initial commit",
+            user="Jane",
             addremove=True,
         )
         client.close()
@@ -81,13 +85,11 @@ class TestCommit(unittest.TestCase):
         shutil.rmtree(self.root)
 
     def test_wet(self):
-        '''Commit message docstring, part {index}.'''
-        with open(
-            os.path.join(self.migrator.localization_dir, 'd1', 'f1'), 'a'
-        ) as f:
-            f.write('second line\n')
-        self.migrator.commit_changeset(self.test_wet.__doc__, 'Axel', 2)
+        """Commit message docstring, part {index}."""
+        with open(os.path.join(self.migrator.localization_dir, "d1", "f1"), "a") as f:
+            f.write("second line\n")
+        self.migrator.commit_changeset(self.test_wet.__doc__, "Axel", 2)
         tip = self.migrator.client.tip()
-        self.assertEqual(tip.rev, b'1')
-        self.assertEqual(tip.author, b'Axel')
-        self.assertEqual(tip.desc, b'Commit message docstring, part 2.')
+        self.assertEqual(tip.rev, b"1")
+        self.assertEqual(tip.author, b"Axel")
+        self.assertEqual(tip.desc, b"Commit message docstring, part 2.")
