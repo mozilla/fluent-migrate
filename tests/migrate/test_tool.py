@@ -122,6 +122,8 @@ class TestGitCommit(unittest.TestCase):
         if proc.returncode != 0:
             raise Exception(proc.stderr or "git init failed")
         client = RepoClient(self.migrator.localization_dir)
+        client._git("config", "user.name", "Anon")
+        client._git("config", "user.email", "anon@example.com")
         client._git("add", ".")
         client._git(
             "commit", "--author=Jane <jane@example.com>", "--message=Initial commit"

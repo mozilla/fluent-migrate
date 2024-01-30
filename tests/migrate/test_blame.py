@@ -131,6 +131,8 @@ class TestGitIntegration(unittest.TestCase):
         if proc.returncode != 0:
             raise Exception(proc.stderr or "git init failed")
         client = RepoClient(self.root)
+        client._git("config", "user.name", "Anon")
+        client._git("config", "user.email", "anon@example.com")
 
         makedirs(join(self.root, "d1"))
         with open(join(self.root, "d1", "f1.ftl"), "w") as f:
