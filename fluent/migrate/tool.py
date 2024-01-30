@@ -1,15 +1,17 @@
-import os
-import logging
+from __future__ import annotations
+
 import argparse
 from contextlib import contextmanager
 import importlib
+import logging
+import os
 import sys
 
 import hglib
 
 from fluent.migrate.context import MigrationContext
 from fluent.migrate.errors import MigrationError
-from fluent.migrate.changesets import convert_blame_to_changesets
+from fluent.migrate.changesets import Changes, convert_blame_to_changesets
 from fluent.migrate.blame import Blame
 
 
@@ -22,7 +24,9 @@ def dont_write_bytecode():
 
 
 class Migrator:
-    def __init__(self, locale, reference_dir, localization_dir, dry_run):
+    def __init__(
+        self, locale: str, reference_dir: str, localization_dir: str, dry_run: bool
+    ):
         self.locale = locale
         self.reference_dir = reference_dir
         self.localization_dir = localization_dir
@@ -59,7 +63,7 @@ class Migrator:
 
         # Keep track of how many changesets we're committing.
         index = 0
-        description_template = migration.migrate.__doc__
+        description_template: str = migration.migrate.__doc__
 
         # Annotate localization files used as sources by this migration
         # to preserve attribution of translations.
@@ -78,7 +82,12 @@ class Migrator:
             index += 1
             self.commit_changeset(description_template, changeset["author"], index)
 
-    def snapshot(self, ctx, changes_in_changeset, known_legacy_translations):
+    def snapshot(
+        self,
+        ctx: MigrationContext,
+        changes_in_changeset: Changes,
+        known_legacy_translations: Changes,
+    ):
         """Run the migration for the changeset, with the set of
         this and all prior legacy translations.
         """
@@ -98,7 +107,7 @@ class Migrator:
                     f.write(content.encode("utf8"))
                     f.close()
 
-    def commit_changeset(self, description_template, author, index):
+    def commit_changeset(self, description_template: str, author, index):
         message = description_template.format(index=index, author=author)
 
         print(f"  Committing changeset: {message}")

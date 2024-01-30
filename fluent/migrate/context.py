@@ -1,3 +1,6 @@
+from __future__ import annotations
+from typing import List, Set, Tuple, cast
+
 import logging
 
 import fluent.syntax.ast as FTL
@@ -48,12 +51,14 @@ class MigrationContext(InternalContext):
     """
 
     def __init__(
-        self, locale, reference_dir, localization_dir, enforce_translated=False
+        self,
+        locale: str,
+        reference_dir: str,
+        localization_dir: str,
+        enforce_translated=False,
     ):
         super().__init__(
             locale,
-            reference_dir,
-            localization_dir,
             enforce_translated=enforce_translated,
         )
         self.locale = locale
@@ -61,12 +66,16 @@ class MigrationContext(InternalContext):
         self.reference_dir = reference_dir
         self.localization_dir = localization_dir
 
-        # A dict whose keys are `(path, key)` tuples corresponding to target
-        # FTL translations, and values are sets of `(path, key)` tuples
-        # corresponding to localized entities which will be migrated.
         self.dependencies = {}
+        """
+        A dict whose keys are `(path, key)` tuples corresponding to target
+        FTL translations, and values are sets of `(path, key)` tuples
+        corresponding to localized entities which will be migrated.
+        """
 
-    def add_transforms(self, target, reference, transforms):
+    def add_transforms(
+        self, target: str, reference: str, transforms: List[FTL.Message | FTL.Term]
+    ):
         """Define transforms for target using reference as template.
 
         `target` is a path of the destination FTL file relative to the
@@ -102,10 +111,10 @@ class MigrationContext(InternalContext):
         self.reference_resources[target] = reference_ast
 
         for node in transforms:
-            ident = node.id.name
+            ident = cast(str, node.id.name)
             # Scan `node` for `Source` nodes and collect the information they
             # store into a set of dependencies.
-            dependencies = fold(get_sources, node, set())
+            dependencies = cast(Set[Tuple[str, Source]], fold(get_sources, node, set()))
             # Set these sources as dependencies for the current transform.
             self.dependencies[(target, ident)] = dependencies
 
