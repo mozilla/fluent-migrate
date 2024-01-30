@@ -1,4 +1,6 @@
 from __future__ import annotations
+from types import ModuleType
+from typing import Iterable, cast
 
 import argparse
 from contextlib import contextmanager
@@ -7,12 +9,11 @@ import logging
 import os
 import sys
 
-import hglib
-
+from fluent.migrate.blame import Blame
+from fluent.migrate.changesets import Changes, convert_blame_to_changesets
 from fluent.migrate.context import MigrationContext
 from fluent.migrate.errors import MigrationError
-from fluent.migrate.changesets import Changes, convert_blame_to_changesets
-from fluent.migrate.blame import Blame
+from fluent.migrate.repo_client import RepoClient
 
 
 @contextmanager
@@ -36,7 +37,7 @@ class Migrator:
     @property
     def client(self):
         if self._client is None:
-            self._client = hglib.open(self.localization_dir, "utf-8")
+            self._client = RepoClient(self.localization_dir)
         return self._client
 
     def close(self):
@@ -44,7 +45,7 @@ class Migrator:
         if self._client is not None:
             self._client.close()
 
-    def run(self, migration):
+    def run(self, migration: ModuleType):
         print("\nRunning migration {} for {}".format(migration.__name__, self.locale))
 
         # For each migration create a new context.
@@ -63,7 +64,7 @@ class Migrator:
 
         # Keep track of how many changesets we're committing.
         index = 0
-        description_template: str = migration.migrate.__doc__
+        description_template = cast(str, migration.migrate.__doc__)
 
         # Annotate localization files used as sources by this migration
         # to preserve attribution of translations.
@@ -107,19 +108,25 @@ class Migrator:
                     f.write(content.encode("utf8"))
                     f.close()
 
-    def commit_changeset(self, description_template: str, author, index):
+    def commit_changeset(self, description_template: str, author: str, index: int):
         message = description_template.format(index=index, author=author)
 
         print(f"  Committing changeset: {message}")
         if self.dry_run:
             return
         try:
-            self.client.commit(message, user=author.encode("utf-8"), addremove=True)
-        except hglib.error.CommandError as err:
-            print(f"    WARNING: hg commit failed ({err})")
+            self.client.commit(message, author)
+        except Exception as err:
+            print(f"    WARNING: commit failed ({err})")
 
 
-def main(locale, reference_dir, localization_dir, migrations, dry_run):
+def main(
+    locale,
+    reference_dir: str,
+    localization_dir: str,
+    migrations: Iterable[ModuleType],
+    dry_run: bool,
+):
     """Run migrations and commit files with the result."""
     migrator = Migrator(locale, reference_dir, localization_dir, dry_run)
 
