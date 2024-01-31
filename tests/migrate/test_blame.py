@@ -3,12 +3,11 @@ from datetime import datetime
 from os import makedirs
 from os.path import join
 import shutil
-from subprocess import run
 import tempfile
 import hglib
 
 from fluent.migrate.blame import Blame
-from fluent.migrate.repo_client import RepoClient
+from fluent.migrate.repo_client import RepoClient, git
 
 
 class MockedBlame(Blame):
@@ -122,23 +121,19 @@ class TestHgIntegration(unittest.TestCase):
 
 class TestGitIntegration(unittest.TestCase):
     def setUp(self):
-        self.root = tempfile.mkdtemp()
+        self.root = root = tempfile.mkdtemp()
         self.timestamps = (1272837600, 1335996000)
 
-        proc = run(
-            ["git", "init"], capture_output=True, cwd=self.root, encoding="utf-8"
-        )
-        if proc.returncode != 0:
-            raise Exception(proc.stderr or "git init failed")
-        client = RepoClient(self.root)
-        client._git("config", "user.name", "Anon")
-        client._git("config", "user.email", "anon@example.com")
+        git(root, "init")
+        git(root, "config", "user.name", "Anon")
+        git(root, "config", "user.email", "anon@example.com")
 
-        makedirs(join(self.root, "d1"))
-        with open(join(self.root, "d1", "f1.ftl"), "w") as f:
+        makedirs(join(root, "d1"))
+        with open(join(root, "d1", "f1.ftl"), "w") as f:
             f.write("one = first line\n")
-        client._git("add", ".")
-        client._git(
+        git(root, "add", ".")
+        git(
+            root,
             "commit",
             f"--date={datetime.fromtimestamp(self.timestamps[0])}",
             "--author=Hüsker Dü <husker@example.com>",
@@ -147,7 +142,8 @@ class TestGitIntegration(unittest.TestCase):
 
         with open(join(self.root, "d1", "f1.ftl"), "a") as f:
             f.write("two = second line\n")
-        client._git(
+        git(
+            root,
             "commit",
             "--all",
             f"--date={datetime.fromtimestamp(self.timestamps[1])}",

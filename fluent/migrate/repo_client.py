@@ -9,6 +9,20 @@ from os.path import isdir, join
 import hglib
 
 
+def git(root: str, *args: str) -> str:
+    """
+    Wrapper for calling command-line git in the `root` directory.
+    Raises an exception on any error, including a non-0 return code.
+    Returns the command's stdout as a string.
+    """
+    git = ["git"]
+    git.extend(args)
+    proc = run(git, capture_output=True, cwd=root, encoding="utf-8")
+    if proc.returncode != 0:
+        raise Exception(proc.stderr or f"git {args[0]} failed")
+    return proc.stdout
+
+
 class RepoClient:
     def __init__(self, root: str):
         self.root = root
@@ -16,7 +30,7 @@ class RepoClient:
             self.hgclient = hglib.open(root, "utf-8")
         elif isdir(join(root, ".git")):
             self.hgclient = None
-            stdout = self._git("rev-parse", "--is-inside-work-tree")
+            stdout = git(self.root, "rev-parse", "--is-inside-work-tree")
             if stdout != "true\n":
                 raise Exception("git rev-parse failed")
         else:
@@ -46,7 +60,7 @@ class RepoClient:
             lines: list[Tuple[str, int]] = []
             user = ""
             time = 0
-            stdout = self._git("blame", "--porcelain", file)
+            stdout = git(self.root, "blame", "--porcelain", file)
             for line in stdout.splitlines():
                 if line.startswith("author "):
                     user = line[7:]
@@ -63,13 +77,33 @@ class RepoClient:
         if self.hgclient:
             self.hgclient.commit(message, user=author.encode("utf-8"), addremove=True)
         else:
-            self._git("add", ".")
-            self._git("commit", f"--author={author}", f"--message={message}")
+            git(self.root, "add", ".")
+            git(self.root, "commit", f"--author={author}", f"--message={message}")
+
+    def head(self) -> str:
+        "Identifier for the most recent commit"
+        if self.hgclient:
+            return self.hgclient.tip().node.decode("utf-8")
+        else:
+            return git(self.root, "rev-parse", "HEAD").strip()
+
+    def log(self, from_commit: str, to_commit: str) -> list[str]:
+        if self.hgclient:
+            return [
+                rev.desc.decode("utf-8")
+                for rev in self.hgclient.log(f"{to_commit} % {from_commit}")
+            ]
+        else:
+            return (
+                git(
+                    self.root,
+                    "log",
+                    "--pretty=format:%s",
+                    f"{from_commit}..{to_commit}",
+                )
+                .strip()
+                .splitlines()
+            )
 
     def _git(self, *args: str):
-        git = ["git"]
-        git.extend(args)
-        proc = run(git, capture_output=True, cwd=self.root, encoding="utf-8")
-        if proc.returncode != 0:
-            raise Exception(proc.stderr or f"git {args[0]} failed")
-        return proc.stdout
+        return git(self.root, *args)

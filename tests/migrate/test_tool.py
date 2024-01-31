@@ -2,10 +2,9 @@ import unittest
 import os
 from os.path import join, relpath
 import shutil
-from subprocess import run
 import tempfile
 
-from fluent.migrate.repo_client import RepoClient
+from fluent.migrate.repo_client import git
 from fluent.migrate.tool import Migrator
 import hglib
 
@@ -108,25 +107,21 @@ class TestGitCommit(unittest.TestCase):
             False,
         )
 
-        loc_dir = join(self.migrator.localization_dir, "d1")
+        dir = self.migrator.localization_dir
+        loc_dir = join(dir, "d1")
         os.makedirs(loc_dir)
         with open(join(loc_dir, "f1"), "w") as f:
             f.write("first line\n")
 
-        proc = run(
-            ["git", "init"],
-            capture_output=True,
-            cwd=self.migrator.localization_dir,
-            encoding="utf-8",
-        )
-        if proc.returncode != 0:
-            raise Exception(proc.stderr or "git init failed")
-        client = RepoClient(self.migrator.localization_dir)
-        client._git("config", "user.name", "Anon")
-        client._git("config", "user.email", "anon@example.com")
-        client._git("add", ".")
-        client._git(
-            "commit", "--author=Jane <jane@example.com>", "--message=Initial commit"
+        git(dir, "init")
+        git(dir, "config", "user.name", "Anon")
+        git(dir, "config", "user.email", "anon@example.com")
+        git(dir, "add", ".")
+        git(
+            dir,
+            "commit",
+            "--author=Jane <jane@example.com>",
+            "--message=Initial commit",
         )
 
     def tearDown(self):
@@ -140,7 +135,7 @@ class TestGitCommit(unittest.TestCase):
         self.migrator.commit_changeset(
             self.test_wet.__doc__, "Axel <axel@example.com>", 2
         )
-        stdout = self.migrator.client._git(
-            "show", "--no-patch", "--pretty=format:%an:%s"
+        stdout = git(
+            self.migrator.client.root, "show", "--no-patch", "--pretty=format:%an:%s"
         )
         self.assertEqual(stdout, "Axel:Git commit message docstring, part 2.")
