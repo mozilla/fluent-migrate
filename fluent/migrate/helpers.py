@@ -7,6 +7,9 @@ They take a string argument and immediately return a corresponding AST node.
 (As opposed to Transforms which are AST nodes on their own and only return the
 migrated AST nodes when they are evaluated by a MigrationContext.) """
 
+from __future__ import annotations
+from typing import List
+
 from fluent.syntax import FluentParser, ast as FTL
 from fluent.syntax.visitor import Transformer
 from .transforms import Transform, CONCAT, COPY, COPY_PATTERN
@@ -123,7 +126,7 @@ class IntoTranforms(Transformer):
             )
 
 
-def transforms_from(ftl, **substitutions):
+def transforms_from(ftl, **substitutions) -> List[FTL.Message | FTL.Term]:
     """Parse FTL code into a list of Message nodes with Transforms.
 
     The FTL may use a fabricated COPY function inside of placeables which

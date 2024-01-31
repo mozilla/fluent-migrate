@@ -1,20 +1,23 @@
+from __future__ import annotations
+from typing import Dict, Optional, Set, Tuple, cast
+
 import os
 import codecs
 from functools import partial
 import logging
 from itertools import zip_longest
 
+from compare_locales.parser import getParser
+from compare_locales.plurals import get_plural
 import fluent.syntax.ast as FTL
 from fluent.syntax.parser import FluentParser
 from fluent.syntax.serializer import FluentSerializer
-from compare_locales.parser import getParser
-from compare_locales.plurals import get_plural
 
+from .changesets import Changes
+from .errors import UnreadableReferenceError
 from .evaluator import Evaluator
 from .merge import merge_resource
-from .errors import (
-    UnreadableReferenceError,
-)
+from .transforms import Source
 
 
 class InternalContext:
@@ -23,7 +26,11 @@ class InternalContext:
     For the public interface, see `context.MigrationContext`.
     """
 
-    def __init__(self, lang, reference_dir, localization_dir, enforce_translated=False):
+    dependencies: Dict[Tuple[str, str], Set[Tuple[str, Source]]] = {}
+    localization_dir: str
+    reference_dir: str
+
+    def __init__(self, lang, enforce_translated=False):
         self.fluent_parser = FluentParser(with_spans=False)
         self.fluent_serializer = FluentSerializer()
 
@@ -33,7 +40,7 @@ class InternalContext:
         if self.plural_categories is None:
             logger = logging.getLogger("migrate")
             logger.warning(
-                'Plural rule for "{}" is not defined in ' "compare-locales".format(lang)
+                f'Plural rule for "{lang}" is not defined in "compare-locales"'
             )
             self.plural_categories = ("one", "other")
 
@@ -51,7 +58,7 @@ class InternalContext:
         # AST hierarchy and evaluating nodes which are migration Transforms.
         self.evaluator = Evaluator(self)
 
-    def read_ftl_resource(self, path):
+    def read_ftl_resource(self, path: str):
         """Read an FTL resource and parse it into an AST."""
         f = codecs.open(path, "r", "utf8")
         try:
@@ -80,7 +87,7 @@ class InternalContext:
 
         return ast
 
-    def read_legacy_resource(self, path):
+    def read_legacy_resource(self, path: str):
         """Read a legacy resource and parse it into a dict."""
         parser = getParser(path)
         parser.readFile(path)
@@ -91,7 +98,7 @@ class InternalContext:
             if entity.localized or self.enforce_translated
         }
 
-    def read_reference_ftl(self, path):
+    def read_reference_ftl(self, path: str):
         """Read and parse a reference FTL file.
 
         A missing resource file is a fatal error and will raise an
@@ -109,7 +116,7 @@ class InternalContext:
             logging.getLogger("migrate").error(error_message)
             raise UnreadableReferenceError(error_message)
 
-    def read_localization_ftl(self, path):
+    def read_localization_ftl(self, path: str):
         """Read and parse an existing localization FTL file.
 
         Create a new FTL.Resource if the file doesn't exist or can't be
@@ -134,7 +141,7 @@ class InternalContext:
             )
             return FTL.Resource()
 
-    def maybe_add_localization(self, path):
+    def maybe_add_localization(self, path: str):
         """Add a localization resource to migrate translations from.
 
         Uses a compare-locales parser to create a dict of (key, string value)
@@ -153,7 +160,7 @@ class InternalContext:
         else:
             self.localization_resources[path] = collection
 
-    def get_legacy_source(self, path, key):
+    def get_legacy_source(self, path: str, key: str):
         """Get an entity value from a localized legacy source.
 
         Used by the `Source` transform.
@@ -161,7 +168,7 @@ class InternalContext:
         resource = self.localization_resources[path]
         return resource.get(key, None)
 
-    def get_fluent_source_pattern(self, path, key):
+    def get_fluent_source_pattern(self, path: str, key: str):
         """Get a pattern from a localized Fluent source.
 
         If the key contains a `.`, does an attribute lookup.
@@ -219,7 +226,11 @@ class InternalContext:
                 return False
         return True
 
-    def merge_changeset(self, changeset=None, known_translations=None):
+    def merge_changeset(
+        self,
+        changeset: Optional[Changes] = None,
+        known_translations: Optional[Changes] = None,
+    ):
         """Return a generator of FTL ASTs for the changeset.
 
         The input data must be configured earlier using the `add_*` methods.
@@ -278,7 +289,9 @@ class InternalContext:
             # The result for this path is a complete `FTL.Resource`.
             yield path, snapshot
 
-    def in_changeset(self, changeset, known_translations, path, ident):
+    def in_changeset(
+        self, changeset: Changes, known_translations: Changes, path: str, ident
+    ) -> bool:
         """Check if a message should be migrated in this changeset.
 
         The message is identified by path and ident.
@@ -313,11 +326,13 @@ class InternalContext:
         # See https://bugzilla.mozilla.org/show_bug.cgi?id=1321271
         # We only return True if our current changeset touches
         # the transform, and we have all of the dependencies.
-        active_deps = message_deps & changeset
+        active_deps = cast(bool, message_deps & changeset)
         available_deps = message_deps & known_translations
         return active_deps and message_deps == available_deps
 
-    def serialize_changeset(self, changeset, known_translations=None):
+    def serialize_changeset(
+        self, changeset: Changes, known_translations: Optional[Changes] = None
+    ):
         """Return a dict of serialized FTLs for the changeset.
 
         Given `changeset`, return a dict whose keys are resource paths and

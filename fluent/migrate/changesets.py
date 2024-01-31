@@ -1,12 +1,25 @@
+from __future__ import annotations
+from typing import Set, Tuple, TypedDict
+
 import time
 
+from .blame import BlameResult
 
-def by_first_commit(item):
+Changes = Set[Tuple[str, str]]
+
+
+class Changeset(TypedDict):
+    author: str
+    first_commit: float
+    changes: Changes
+
+
+def by_first_commit(item: Changeset):
     """Order two changesets by their first commit date."""
     return item["first_commit"]
 
 
-def convert_blame_to_changesets(blame_json):
+def convert_blame_to_changesets(blame_json: BlameResult) -> list[Changeset]:
     """Convert a blame dict into a list of changesets.
 
     The blame information in `blame_json` should be a dict of the following
@@ -38,7 +51,7 @@ def convert_blame_to_changesets(blame_json):
 
     """
     now = time.time()
-    changesets = [
+    changesets: list[Changeset] = [
         {"author": author, "first_commit": now, "changes": set()}
         for author in blame_json["authors"]
     ]

@@ -1,21 +1,43 @@
+from __future__ import annotations
+from typing import Dict, Iterable, Tuple, TypedDict, cast
+
 import argparse
 import json
 import os
 
-from compare_locales.parser import getParser, Junk
+from compare_locales.parser import Junk, getParser
 from compare_locales.parser.fluent import FluentEntity
 from compare_locales import mozpath
 import hglib
 from hglib.util import b, cmdbuilder
 
+BlameData = Dict[str, Dict[str, Tuple[int, float]]]
+"File path -> message key -> [userid, timestamp]"
+
+
+class BlameResult(TypedDict):
+    authors: list[str]
+    blame: BlameData
+
+
+class LineBlame(TypedDict):
+    date: tuple[float, float]
+    line: str
+    user: str
+
+
+class FileBlame(TypedDict):
+    lines: list[LineBlame]
+    path: str
+
 
 class Blame:
-    def __init__(self, client):
+    def __init__(self, client: hglib.client.hgclient):
         self.client = client
-        self.users = []
-        self.blame = {}
+        self.users: list[str] = []
+        self.blame: BlameData = {}
 
-    def attribution(self, file_paths):
+    def attribution(self, file_paths: Iterable[str]) -> BlameResult:
         args = cmdbuilder(
             b"annotate",
             *[b(p) for p in file_paths],
@@ -32,7 +54,7 @@ class Blame:
 
         return {"authors": self.users, "blame": self.blame}
 
-    def handleFile(self, file_blame):
+    def handleFile(self, file_blame: FileBlame):
         path = mozpath.normsep(file_blame["path"])
 
         try:
@@ -48,12 +70,13 @@ class Blame:
             if isinstance(e, Junk):
                 continue
             if e.val_span:
-                key_vals = [(e.key, e.val_span)]
+                key_vals: list[tuple[str, str]] = [(e.key, e.val_span)]
             else:
                 key_vals = []
             if isinstance(e, FluentEntity):
                 key_vals += [
-                    (f"{e.key}.{attr.key}", attr.val_span) for attr in e.attributes
+                    (f"{e.key}.{attr.key}", cast(str, attr.val_span))
+                    for attr in e.attributes
                 ]
             for key, (val_start, val_end) in key_vals:
                 entity_lines = file_blame["lines"][
@@ -67,9 +90,9 @@ class Blame:
                 if user not in self.users:
                     self.users.append(user)
                 userid = self.users.index(user)
-                self.blame[path][key] = [userid, timestamp]
+                self.blame[path][key] = cast(Tuple[int, float], [userid, timestamp])
 
-    def readFile(self, parser, path):
+    def readFile(self, parser, path: str):
         parser.readFile(os.path.join(self.client.root().decode("utf-8"), path))
 
 
