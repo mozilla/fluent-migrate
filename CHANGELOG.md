@@ -1,5 +1,11 @@
 # Changelog
 
+## fluent.migrate 0.13.0 (Feb 1, 2024)
+
+  - Add RepoClient as wrapper that auto-detects and supports both git & hg ([#6](https://github.com/mozilla/fluent-migrate/pull/6))
+  - Add some type hinting
+  - Drop support for Python 3.7, add 3.11 and 3.12
+
 ## fluent.migrate 0.12.0 (May 16, 2023)
 
   - Trim plural variants in fluent.migrate `PLURALS()` ([Bug 1794286](https://bugzilla.mozilla.org/show_bug.cgi?1794286))
