@@ -104,6 +104,3 @@ class RepoClient:
                 .strip()
                 .splitlines()
             )
-
-    def _git(self, *args: str):
-        return git(self.root, *args)
