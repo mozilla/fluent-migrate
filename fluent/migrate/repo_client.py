@@ -19,7 +19,7 @@ def git(root: str, *args: str) -> str:
     git.extend(args)
     proc = run(git, capture_output=True, cwd=root, encoding="utf-8")
     if proc.returncode != 0:
-        raise Exception(proc.stderr or f"git {args[0]} failed")
+        raise Exception(proc.stderr or f"git command failed: {args}")
     return proc.stdout
 
 
