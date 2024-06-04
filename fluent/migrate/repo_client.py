@@ -30,11 +30,12 @@ class RepoClient:
             self.hgclient = hglib.open(root, "utf-8")
         else:
             self.hgclient = None
-            stdout = git(self.root, "rev-parse", "--is-inside-work-tree")
+            try:
+                stdout = git(self.root, "rev-parse", "--is-inside-work-tree")
+            except Exception:
+                stdout = ""
             if stdout != "true\n":
-                raise Exception(
-                    f"Unsupported repository (git rev-parse failed): {root}"
-                )
+                raise Exception(f"Unsupported repository: {root}")
 
     def close(self):
         if self.hgclient:
