@@ -1,5 +1,9 @@
 # Changelog
 
+## fluent.migrate 0.13.1 (Jun 4, 2024)
+
+  - Use `git rev-parse` directly to check if the folder is within a git repository ([#10](https://github.com/mozilla/fluent-migrate/pull/10)). This is needed to support migrations in a git monorepo instead of individual hg repositories.
+
 ## fluent.migrate 0.13.0 (Feb 1, 2024)
 
   - Add RepoClient as wrapper that auto-detects and supports both git & hg ([#6](https://github.com/mozilla/fluent-migrate/pull/6))

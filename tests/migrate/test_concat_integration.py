@@ -1,5 +1,5 @@
 import unittest
-from compare_locales.parser import PropertiesParser, DTDParser
+from compare_locales.parser import DTDParser
 
 import fluent.syntax.ast as FTL
 from fluent.migrate.util import parse, ftl_pattern_to_json
