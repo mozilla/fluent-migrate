@@ -1,5 +1,9 @@
 # Changelog
 
+## fluent.migrate 0.13.2 (Nov 19, 2024)
+
+  - List git log entries from oldest to newest ([#11](https://github.com/mozilla/fluent-migrate/pull/11))
+
 ## fluent.migrate 0.13.1 (Jun 4, 2024)
 
   - Use `git rev-parse` directly to check if the folder is within a git repository ([#10](https://github.com/mozilla/fluent-migrate/pull/10)). This is needed to support migrations in a git monorepo instead of individual hg repositories.
