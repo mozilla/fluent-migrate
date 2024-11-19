@@ -99,6 +99,7 @@ class RepoClient:
                 git(
                     self.root,
                     "log",
+                    "--reverse",
                     "--pretty=format:%s",
                     f"{from_commit}..{to_commit}",
                 )
