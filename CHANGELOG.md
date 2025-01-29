@@ -1,5 +1,10 @@
 # Changelog
 
+## fluent.migrate 0.13.3 (Jan 29, 2025)
+
+  - Use `[noname] <nomail>` as fallback for missing git author info ([#13](https://github.com/mozilla/fluent-migrate/pull/13))
+  - Highlight warning log prints using ANSI terminal colors ([#13](https://github.com/mozilla/fluent-migrate/pull/13))
+
 ## fluent.migrate 0.13.2 (Nov 19, 2024)
 
   - List git log entries from oldest to newest ([#11](https://github.com/mozilla/fluent-migrate/pull/11))
